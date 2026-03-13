@@ -13,6 +13,7 @@ import {
   GraduationCap, 
   UserCheck,
   ChevronRight,
+  ChevronLeft,
   FileUp,
   Image as ImageIcon,
   School,
@@ -165,16 +166,146 @@ const initialPersonnel: Personnel[] = [
     projects: [
       { time: '2024 年', projectName: '海南供电局输电线路视频监控终端覆盖项目', role: '实施组长', client: '海南电网', contact: '林经理', phone: '133-XXXX-1122', serviceType: '工程实施', workCertUrl: 'https://placehold.co/600x800?text=Field+Project+Proof' }
     ]
+  },
+  {
+    id: 's-chen-jing',
+    name: '陈静',
+    age: 36,
+    education: '硕士',
+    title: '高级工程师',
+    proposedPosition: '造价咨询专家',
+    years: 13,
+    similarYears: 11,
+    school: '同济大学',
+    major: '工程管理',
+    gradDate: '2012',
+    currentLoad: 0.5,
+    educations: [{ level: '硕士', school: '同济大学', major: '工程管理', gradDate: '2012' }],
+    certs: [
+      { name: '注册造价工程师', level: '一级', authority: '住建部', number: 'ZJ-20120456', validity: '永久' }
+    ],
+    projects: [
+      { time: '2023 年', projectName: '广东电网输变电工程造价全过程跟踪审计', role: '造价主审', client: '广东电网', contact: '余总监', phone: '138-XXXX-3344', serviceType: '造价咨询', workCertUrl: undefined }
+    ]
+  },
+  {
+    id: 's-wu-hao',
+    name: '吴浩',
+    age: 42,
+    education: '本科',
+    title: '高级工程师',
+    proposedPosition: '电气专业总工',
+    years: 19,
+    similarYears: 16,
+    school: '西安交通大学',
+    major: '电气工程及其自动化',
+    gradDate: '2006',
+    currentLoad: 0.7,
+    educations: [{ level: '本科', school: '西安交通大学', major: '电气工程及其自动化', gradDate: '2006' }],
+    certs: [
+      { name: '注册电气工程师（供配电）', level: '注册级', authority: '工程师协会', number: 'DQ-20061234', validity: '永久' },
+      { name: '电力系统继电保护证书', level: '高级', authority: '电力行业协会', number: 'JD-5567', validity: '2028-06' }
+    ],
+    projects: [
+      { time: '2022 年', projectName: '云南电网500kV变电站二次系统改造技术咨询', role: '电气总工', client: '云南电网', contact: '杨副总', phone: '137-XXXX-8899', serviceType: '技术咨询', workCertUrl: undefined }
+    ]
+  },
+  {
+    id: 's-sun-lei',
+    name: '孙磊',
+    age: 38,
+    education: '硕士',
+    title: '高级工程师',
+    proposedPosition: '数字化转型顾问',
+    years: 15,
+    similarYears: 12,
+    school: '北京邮电大学',
+    major: '信息管理与信息系统',
+    gradDate: '2010',
+    currentLoad: 0.6,
+    educations: [{ level: '硕士', school: '北京邮电大学', major: '信息管理与信息系统', gradDate: '2010' }],
+    certs: [
+      { name: 'TOGAF企业架构认证', level: '9级', authority: 'The Open Group', number: 'TG-20103321', validity: '永久' }
+    ],
+    projects: [
+      { time: '2024 年', projectName: '国网信息通信产业集团数字化运营体系建设咨询', role: '架构顾问', client: '国网通信', contact: '赵总工', phone: '136-XXXX-7788', serviceType: '数字化咨询', workCertUrl: undefined }
+    ]
+  },
+  {
+    id: 's-zhou-min',
+    name: '周敏',
+    age: 34,
+    education: '本科',
+    title: '工程师',
+    proposedPosition: '招标文件编制员',
+    years: 11,
+    similarYears: 9,
+    school: '华南理工大学',
+    major: '工程造价',
+    gradDate: '2014',
+    currentLoad: 0.9,
+    educations: [{ level: '本科', school: '华南理工大学', major: '工程造价', gradDate: '2014' }],
+    certs: [
+      { name: '造价员证书', level: '中级', authority: '广东省建设厅', number: 'ZY-2014-0887', validity: '2026-12' }
+    ],
+    projects: [
+      { time: '2023 年', projectName: '广州供电局配网设备采购招标代理服务', role: '标书编制', client: '广州供电局', contact: '廖主任', phone: '139-XXXX-5566', serviceType: '招标代理', workCertUrl: undefined }
+    ]
+  },
+  {
+    id: 's-lin-xia',
+    name: '林霞',
+    age: 39,
+    education: '博士',
+    title: '教授级高级工程师',
+    proposedPosition: '碳资产管理顾问',
+    years: 16,
+    similarYears: 14,
+    school: '清华大学',
+    major: '环境工程',
+    gradDate: '2009',
+    currentLoad: 0.4,
+    educations: [{ level: '博士', school: '清华大学', major: '环境工程', gradDate: '2009' }],
+    certs: [
+      { name: '碳排放权交易核查员', level: '国家级', authority: '生态环境部', number: 'TE-20091122', validity: '2027-09' },
+      { name: 'ISO14064审核员', level: '国际级', authority: 'SGS认证', number: 'ISO-44332', validity: '2026-05' }
+    ],
+    projects: [
+      { time: '2024 年', projectName: '南方电网碳达峰碳中和路径研究及碳资产管理平台建设咨询', role: '项目总监', client: '南方电网', contact: '钟副总裁', phone: '186-XXXX-0011', serviceType: '碳咨询', workCertUrl: undefined }
+    ]
+  },
+  {
+    id: 's-tang-bo',
+    name: '唐波',
+    age: 44,
+    education: '本科',
+    title: '高级工程师',
+    proposedPosition: '输变电工程监理',
+    years: 21,
+    similarYears: 18,
+    school: '湖南大学',
+    major: '电力系统及其自动化',
+    gradDate: '2003',
+    currentLoad: 0.8,
+    educations: [{ level: '本科', school: '湖南大学', major: '电力系统及其自动化', gradDate: '2003' }],
+    certs: [
+      { name: '监理工程师证书（电力）', level: '注册级', authority: '住建部', number: 'JL-20030556', validity: '永久' }
+    ],
+    projects: [
+      { time: '2021 年', projectName: '湖南电网±800kV特高压直流工程全过程监理', role: '总监代表', client: '湖南电力', contact: '彭总监', phone: '135-XXXX-6677', serviceType: '工程监理', workCertUrl: undefined }
+    ]
   }
 ];
 
 const PersonnelBaseView: React.FC = () => {
+  const STAFF_PAGE_SIZE = 8;
   const [personnelList, setPersonnelList] = useState<Personnel[]>(initialPersonnel);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showDocPreview, setShowDocPreview] = useState<Personnel | null>(null);
   const [formData, setFormData] = useState<Partial<Personnel>>({});
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const [staffPage, setStaffPage] = useState(1);
+
   const dynamicFileInputRef = useRef<HTMLInputElement>(null);
   const [uploadContext, setUploadContext] = useState<{type: 'cert' | 'work' | 'edu_grad' | 'edu_degree', index: number} | null>(null);
 
@@ -266,8 +397,12 @@ const PersonnelBaseView: React.FC = () => {
     setFormData({ ...formData, educations: newEdus });
   };
 
+  const filteredPersonnel = personnelList.filter(p => !searchQuery || p.name.includes(searchQuery) || p.title.includes(searchQuery) || p.school.includes(searchQuery) || p.major.includes(searchQuery) || p.certs.some(c => c.name.includes(searchQuery)));
+  const staffTotalPages = Math.ceil(filteredPersonnel.length / STAFF_PAGE_SIZE);
+  const pagedPersonnel = filteredPersonnel.slice((staffPage - 1) * STAFF_PAGE_SIZE, staffPage * STAFF_PAGE_SIZE);
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 text-left">
+    <div className="h-full flex flex-col gap-4 p-8 animate-in fade-in duration-500 text-left">
       <input type="file" ref={dynamicFileInputRef} className="hidden" onChange={handleFileChange} accept="image/*,application/pdf" />
 
       {/* A4 导出预览遮罩层 */}
@@ -633,14 +768,13 @@ const PersonnelBaseView: React.FC = () => {
       )}
 
       {/* 头部布局 */}
-      <div className="flex justify-between items-center text-left">
+      <div className="flex justify-between items-center text-left shrink-0">
         <div className="flex items-center space-x-4">
            <div className={`p-3 text-white rounded-2xl shadow-xl bg-indigo-600 shadow-indigo-100`}>
              <Users size={24} />
            </div>
            <div className="text-left">
             <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic leading-none">人员资质库</h2>
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2 italic italic">Grid Expert Registry & Bidder Credentials Management</p>
           </div>
         </div>
         <div className="flex space-x-3">
@@ -654,12 +788,12 @@ const PersonnelBaseView: React.FC = () => {
       </div>
 
       {/* 列表页检索栏 */}
-      <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[600px] text-left">
+      <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden flex flex-col flex-1 min-h-0 text-left">
         <div className="p-6 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
           <div className="flex items-center space-x-4 flex-1 max-w-3xl">
             <div className="relative group flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" size={20} />
-              <input type="text" placeholder="快速检索姓名、证书、院校、专业或职称..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-12 pr-6 py-4 rounded-2xl border-2 border-slate-100 bg-white outline-none font-bold text-sm shadow-inner focus:border-indigo-600 transition-all" />
+              <input type="text" placeholder="快速检索姓名、证书、院校、专业或职称..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setStaffPage(1); }} className="w-full pl-12 pr-6 py-4 rounded-2xl border-2 border-slate-100 bg-white outline-none font-bold text-sm shadow-inner focus:border-indigo-600 transition-all" />
             </div>
             <button className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-100 flex items-center active:scale-95"><Search size={18} className="mr-3" /> 开始检索人员</button>
           </div>
@@ -682,7 +816,7 @@ const PersonnelBaseView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {personnelList.filter(p => !searchQuery || p.name.includes(searchQuery)).map(p => (
+              {pagedPersonnel.map(p => (
                 <tr key={p.id} className="hover:bg-indigo-50/50 transition-all group cursor-pointer text-[12px]" onClick={() => handleEdit(p)}>
                   <td className="px-6 py-6 font-black text-slate-800 sticky left-0 bg-white group-hover:bg-indigo-50/50 border-r border-slate-50 shadow-sm">
                     <div className="flex items-center space-x-4">
@@ -713,8 +847,20 @@ const PersonnelBaseView: React.FC = () => {
             </tbody>
           </table>
         </div>
+        {staffTotalPages > 1 && (
+          <div className="shrink-0 flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-slate-50/30">
+            <span className="text-xs text-slate-400 font-bold">共 {filteredPersonnel.length} 条记录，第 {staffPage} / {staffTotalPages} 页</span>
+            <div className="flex items-center space-x-2">
+              <button onClick={() => setStaffPage(p => Math.max(1, p - 1))} disabled={staffPage === 1} className="p-2 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-indigo-50 hover:border-indigo-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"><ChevronLeft size={16} /></button>
+              {Array.from({ length: staffTotalPages }, (_, i) => i + 1).map(pg => (
+                <button key={pg} onClick={() => setStaffPage(pg)} className={`w-8 h-8 rounded-xl text-xs font-black transition-all ${pg === staffPage ? 'bg-indigo-600 text-white shadow-md' : 'bg-white border border-slate-200 text-slate-500 hover:bg-indigo-50'}`}>{pg}</button>
+              ))}
+              <button onClick={() => setStaffPage(p => Math.min(staffTotalPages, p + 1))} disabled={staffPage === staffTotalPages} className="p-2 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-indigo-50 hover:border-indigo-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"><ChevronRight size={16} /></button>
+            </div>
+          </div>
+        )}
       </div>
-      
+
       <style>{`
         .custom-scrollbar-main::-webkit-scrollbar { height: 10px; width: 6px; }
         .custom-scrollbar-main::-webkit-scrollbar-track { background: #f8fafc; }

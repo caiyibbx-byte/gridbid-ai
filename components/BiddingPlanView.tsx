@@ -8,6 +8,7 @@ import {
   Zap,
   X,
   ChevronRight,
+  ChevronLeft,
   FileText,
   Plus,
   ClipboardCheck,
@@ -67,7 +68,9 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
   const [searchTerm, setSearchTerm] = useState('');
   const [modalType, setModalType] = useState<RoleType | null>(null);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
-  
+  const [planPage, setPlanPage] = useState(1);
+  const PLAN_PAGE_SIZE = 6;
+
   // active (正在进行中计划) vs submitted (完成投标活跃项目)
   const [activeTab, setActiveTab] = useState<'active' | 'submitted'>('active');
   const [taskToRollback, setTaskToRollback] = useState<BiddingTask | null>(null);
@@ -87,11 +90,15 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
 
   // 3. 关键字搜索过滤
   const filteredTasks = useMemo(() => {
+    setPlanPage(1);
     const q = searchTerm.toLowerCase();
     return tabFilteredTasks.filter(task => {
       return task.title.toLowerCase().includes(q) || (task.lotName && task.lotName.toLowerCase().includes(q));
     });
   }, [tabFilteredTasks, searchTerm]);
+
+  const planTotalPages = Math.ceil(filteredTasks.length / PLAN_PAGE_SIZE);
+  const pagedTasks = filteredTasks.slice((planPage - 1) * PLAN_PAGE_SIZE, planPage * PLAN_PAGE_SIZE);
 
   const handleSelectStaff = (staff: StaffMember) => {
     const task = tasks.find(t => t.id === activeTaskId);
@@ -259,9 +266,6 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
               </span>
             )}
           </h2>
-          <p className="text-slate-400 text-[10px] mt-1 italic font-bold uppercase tracking-widest">
-            Bidding Pipeline & Execution Tracking
-          </p>
         </div>
         <div className="flex space-x-2">
           <button className="bg-white border-2 border-slate-100 text-slate-600 px-4 py-2 rounded-xl flex items-center shadow-sm hover:bg-slate-50 transition-all font-black text-[10px] uppercase tracking-widest">
@@ -328,7 +332,7 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredTasks.map((task) => {
+              {pagedTasks.map((task) => {
                 const isDocReady = task.expStatus === PhaseStatus.COMPLETED && 
                                    task.teamStatus === PhaseStatus.COMPLETED && 
                                    task.contentStatus === PhaseStatus.COMPLETED;
@@ -448,6 +452,29 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
                <p className="text-[10px] mt-4 font-bold uppercase tracking-tighter opacity-50 italic">
                  {activeTab === 'active' ? '所有计划均已提交或暂无新计划' : '尚未有项目完成正式投标提交'}
                </p>
+            </div>
+          )}
+          {planTotalPages > 1 && (
+            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100">
+              <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                共 {filteredTasks.length} 条 · 第 {planPage} / {planTotalPages} 页
+              </span>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setPlanPage(p => Math.max(1, p - 1))} disabled={planPage === 1}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center border border-slate-200 text-slate-500 hover:border-blue-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+                  <ChevronLeft size={16} />
+                </button>
+                {Array.from({ length: planTotalPages }, (_, i) => i + 1).map(p => (
+                  <button key={p} onClick={() => setPlanPage(p)}
+                    className={`w-8 h-8 rounded-xl text-xs font-black transition-all ${planPage === p ? 'bg-blue-600 text-white shadow-md' : 'border border-slate-200 text-slate-500 hover:border-blue-500 hover:text-blue-600'}`}>
+                    {p}
+                  </button>
+                ))}
+                <button onClick={() => setPlanPage(p => Math.min(planTotalPages, p + 1))} disabled={planPage === planTotalPages}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center border border-slate-200 text-slate-500 hover:border-blue-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+                  <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
           )}
         </div>

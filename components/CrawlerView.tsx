@@ -632,8 +632,8 @@ const CrawlerView: React.FC<CrawlerViewProps> = ({ plannedIds, onTogglePlan, onA
                   <table className="w-full text-left border-separate border-spacing-0">
                     <thead className="sticky top-0 z-30 bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest">
                       <tr>
-                        <th className="sticky left-0 z-40 bg-slate-100 w-16 px-4 py-4 border-b border-r border-slate-200 text-center select-none">序号</th>
-                        <th className="sticky left-16 z-40 bg-slate-100 w-40 px-4 py-4 border-b border-r border-slate-200 select-none">操作</th>
+                        <th className="sticky left-0 z-40 bg-slate-100 w-16 px-4 py-4 border-b border-r border-slate-200 text-center select-none whitespace-nowrap">序号</th>
+                        <th className="sticky left-16 z-40 bg-slate-100 w-40 px-4 py-4 border-b border-r border-slate-200 select-none whitespace-nowrap">操作</th>
                         {orderedCols.map((col) => {
                           const isDraggingThis = dragKey.current === col.key;
                           const isDragOver = dragOverKey === col.key;
@@ -645,7 +645,7 @@ const CrawlerView: React.FC<CrawlerViewProps> = ({ plannedIds, onTogglePlan, onA
                               onDragOver={(e) => handleDragOver(e, col.key)}
                               onDrop={() => handleDrop(col.key)}
                               onDragEnd={handleDragEnd}
-                              className={`${col.width} px-4 py-4 border-b border-r border-slate-200 cursor-grab active:cursor-grabbing select-none transition-all
+                              className={`${col.width} px-4 py-4 border-b border-r border-slate-200 cursor-grab active:cursor-grabbing select-none whitespace-nowrap transition-all
                                 ${isDraggingThis ? 'opacity-40 bg-slate-200' : 'hover:bg-blue-50 hover:text-blue-700'}
                                 ${isDragOver ? 'border-l-2 border-l-blue-500 bg-blue-50/80 text-blue-700' : ''}
                               `}
@@ -722,7 +722,6 @@ const CrawlerView: React.FC<CrawlerViewProps> = ({ plannedIds, onTogglePlan, onA
            </div>
            <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic leading-none">招标抓取与深度解析</h2>
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2 italic">Automated synchronization with grid portal & lot granularity analysis</p>
           </div>
         </div>
         <button 
@@ -741,24 +740,18 @@ const CrawlerView: React.FC<CrawlerViewProps> = ({ plannedIds, onTogglePlan, onA
             <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={18} />
             <input type="text" placeholder="快速定位采购项目..." className="w-full pl-12 pr-6 py-3.5 rounded-2xl border-2 border-slate-100 bg-white focus:outline-none focus:border-blue-600 transition-all font-bold text-sm" />
           </div>
-          <div className="flex items-center space-x-3">
-             <div className="flex items-center px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100 font-black text-[10px] uppercase tracking-widest">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse mr-2"></span>
-                API Engine Online
-             </div>
-          </div>
         </div>
 
         <div className="overflow-x-auto flex-1">
-          <table className="w-full text-left">
+          <table className="min-w-max w-full text-left">
             <thead className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] bg-slate-50 border-b border-slate-100">
               <tr>
-                <th className="px-6 py-4">状态 / 编号</th>
-                <th className="px-6 py-4">来源</th>
-                <th className="px-6 py-4">采购项目名称</th>
-                <th className="px-6 py-4">采购文件获取截止时间</th>
-                <th className="px-6 py-4">开启应答文件时间</th>
-                <th className="px-6 py-4 text-right">操作控制</th>
+                <th className="px-6 py-4 whitespace-nowrap">状态 / 编号</th>
+                <th className="px-6 py-4 whitespace-nowrap">来源</th>
+                <th className="px-6 py-4 whitespace-nowrap">采购项目名称</th>
+                <th className="px-6 py-4 whitespace-nowrap">采购文件获取截止时间</th>
+                <th className="px-6 py-4 whitespace-nowrap">开启应答文件时间</th>
+                <th className="px-6 py-4 text-right whitespace-nowrap">操作控制</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50 text-left">

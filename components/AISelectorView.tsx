@@ -603,7 +603,6 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
               <div className="p-2 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-500/20"><Sparkles size={20} /></div>
               <div>
                 <h3 className="text-lg font-black text-white uppercase italic leading-none tracking-tight">AI 智能推荐大厅</h3>
-                <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mt-1 opacity-80 italic">Smart Asset Matching & Manual Filtering</p>
               </div>
             </div>
             <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
@@ -697,8 +696,8 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
                 })}
               </div>
             ) : (
-              <div className="min-w-max overflow-auto flex-1 custom-scrollbar-main">
-                <table className="w-full text-left border-collapse">
+              <div className="overflow-auto flex-1 custom-scrollbar-main">
+                <table className="min-w-max w-full text-left border-collapse">
                   <thead className="sticky top-0 z-30 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest">
                     <tr>
                       <th className="sticky left-0 z-40 bg-slate-900 w-20 px-4 py-4 border-r border-slate-800 text-center select-none">匹配度</th>

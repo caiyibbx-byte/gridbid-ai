@@ -26,8 +26,8 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
 
 const DashboardView: React.FC = () => {
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 text-left">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="h-full flex flex-col gap-6 p-8 animate-in fade-in duration-500 text-left">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 shrink-0">
         {[
           { label: '今日爬取任务', value: '1,284', icon: Search, color: 'text-blue-600', bg: 'bg-blue-50' },
           { label: '智能分析次数', value: '456', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
@@ -46,18 +46,18 @@ const DashboardView: React.FC = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
-        <div className="lg:col-span-2 bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm text-left">
-          <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tight mb-6 flex items-center">
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
+        <div className="lg:col-span-2 bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm text-left flex flex-col">
+          <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tight mb-6 flex items-center shrink-0">
             <TrendingUp size={20} className="mr-2 text-blue-600" /> 招标趋势与投标转化
           </h3>
-          <div className="h-80 text-left">
+          <div className="flex-1 min-h-0 text-left">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} />
                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}
                   cursor={{ fill: '#f8fafc' }}
                 />
@@ -68,9 +68,9 @@ const DashboardView: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm text-left">
-          <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tight mb-6">项目类型分布</h3>
-          <div className="h-80">
+        <div className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm text-left flex flex-col">
+          <h3 className="text-lg font-black text-slate-900 uppercase italic tracking-tight mb-6 shrink-0">项目类型分布</h3>
+          <div className="flex-1 min-h-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -87,13 +87,13 @@ const DashboardView: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                    contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="space-y-3 mt-4 text-left">
+          <div className="space-y-3 mt-4 shrink-0 text-left">
             {pieData.map((d, i) => (
               <div key={i} className="flex items-center justify-between text-xs font-bold text-slate-600 text-left">
                 <div className="flex items-center">
