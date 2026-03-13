@@ -138,6 +138,7 @@ const App: React.FC = () => {
       deadline: '2024-11-05',
       status: 'analyzed',
       budget: '850万元',
+      platform: '国网',
       priority: 'high',
       source: 'crawler',
       assignDate: '2024-10-16',
@@ -171,6 +172,7 @@ const App: React.FC = () => {
       deadline: '2024-12-01',
       status: 'analyzed',
       budget: '1200万元',
+      platform: '南网',
       priority: 'medium',
       source: 'ai',
       assignDate: '2024-10-22',
@@ -237,7 +239,7 @@ const App: React.FC = () => {
       case AppView.TEMPLATE_CONFIG: return <TemplateConfigView />;
       case AppView.PROJECT_BASE: return <KnowledgeBaseView mode="projects" />;
       case AppView.STAFF_BASE: return <PersonnelBaseView />;
-      case AppView.BID_WORKSPACE: return <BidWorkspaceView currentTask={selectedTask} currentUser={currentUser} onUpdateTask={updateTask} />;
+      case AppView.BID_WORKSPACE: return <BidWorkspaceView currentTask={selectedTask} currentUser={currentUser} onUpdateTask={updateTask} onBack={() => setCurrentView(AppView.BID_PLAN)} />;
       case AppView.LOG_MANAGEMENT: return <LogManagementView logs={logs} onClearLogs={() => setLogs([])} />;
       case AppView.AGENT_CONFIG: return <AgentConfigView />;
       case AppView.ADMIN: return <AdminView />;
@@ -362,8 +364,8 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto grid-bg p-8 custom-scrollbar-main text-left">
-          <div className={`${currentView === AppView.BID_WORKSPACE ? 'max-w-full px-2' : 'max-w-7xl mx-auto'} pb-12 transition-all duration-500`}>
+        <div className={`flex-1 grid-bg custom-scrollbar-main text-left overflow-hidden flex flex-col ${currentView === AppView.AI_SELECTOR || currentView === AppView.CRAWLER || currentView === AppView.BID_PLAN ? 'p-0' : 'overflow-y-auto p-8'}`}>
+          <div className={`${currentView === AppView.BID_WORKSPACE || currentView === AppView.AI_SELECTOR || currentView === AppView.CRAWLER || currentView === AppView.BID_PLAN ? 'max-w-full h-full' : 'max-w-7xl mx-auto pb-12'} transition-all duration-500`}>
             {renderView()}
           </div>
         </div>

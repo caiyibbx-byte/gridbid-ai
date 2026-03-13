@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
-  Users, Award, FileText, ChevronRight, BrainCircuit, 
-  RefreshCw, Download, Save, 
+  Users, Award, FileText, ChevronRight, BrainCircuit,
+  RefreshCw, Download, Save,
   Search, X, Sparkles, Check,
+  ArrowUp, ArrowDown,
   BadgeCheck, Zap, Layers,
   UserPlus, CheckCircle2,
   Plus, DatabaseZap,
@@ -69,6 +70,7 @@ interface BidWorkspaceViewProps {
   currentTask?: BiddingTask;
   currentUser: StaffUser | null;
   onUpdateTask?: (task: BiddingTask) => void;
+  onBack?: () => void;
 }
 
 interface TaskStatus {
@@ -238,7 +240,7 @@ const PersonnelFullDocumentMerged: React.FC<{ person: Personnel; isLeader?: bool
 // --------------------------------------------------------------------------------
 // 主工作空间组件
 // --------------------------------------------------------------------------------
-const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, currentUser, onUpdateTask }) => {
+const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, currentUser, onUpdateTask, onBack }) => {
   // 全员协作模式：取消权限限制
   const canEditTeam = true;
   const canEditExp = true;
@@ -345,16 +347,33 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
     }
   }, [currentTask]);
 
-  // 关键增强：为预览模式生成的已排序成员列表（负责人排在第一位）
-  const previewPersonnelList = useMemo(() => {
-    if (!projectLeaderId) return selectedPersonnel;
-    const sorted = [...selectedPersonnel].sort((a, b) => {
-      if (a.id === projectLeaderId) return -1;
-      if (b.id === projectLeaderId) return 1;
-      return 0;
-    });
-    return sorted;
-  }, [selectedPersonnel, projectLeaderId]);
+  // 预览直接跟随 selectedPersonnel 顺序（顺序由用户手动排列或设负责人时自动置顶管理）
+  const previewPersonnelList = selectedPersonnel;
+
+  const moveMember = (idx: number, dir: -1 | 1) => {
+    const target = idx + dir;
+    if (target < 0 || target >= selectedPersonnel.length) return;
+    const next = [...selectedPersonnel];
+    [next[idx], next[target]] = [next[target], next[idx]];
+    setSelectedPersonnel(next);
+  };
+
+  const handleSetLeader = (personId: string) => {
+    const isLeader = projectLeaderId === personId;
+    if (isLeader) {
+      setProjectLeaderId(null);
+    } else {
+      setProjectLeaderId(personId);
+      // 将负责人移到第一位
+      setSelectedPersonnel(prev => {
+        const idx = prev.findIndex(p => p.id === personId);
+        if (idx <= 0) return prev;
+        const next = [...prev];
+        const [leader] = next.splice(idx, 1);
+        return [leader, ...next];
+      });
+    }
+  };
 
   const markTaskCompleted = (taskId: 'team' | 'exp' | 'content') => {
     if (taskId === 'team' && selectedPersonnel.length > 0 && !projectLeaderId) {
@@ -566,6 +585,7 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
              </div>
            )}
            {phase !== 'hub' && <button onClick={() => setPhase('hub')} className="text-xs font-black text-slate-400 flex items-center hover:text-blue-600 px-4 py-2 uppercase tracking-widest transition-colors"><ChevronLeft size={18} className="mr-2" /> 返回枢纽</button>}
+           {onBack && <button onClick={onBack} className="text-xs font-black text-slate-400 flex items-center hover:text-slate-900 px-4 py-2 border border-slate-200 rounded-xl uppercase tracking-widest transition-all hover:border-slate-400"><ChevronLeft size={18} className="mr-2" /> 投标计划</button>}
         </div>
       </header>
 
@@ -808,8 +828,15 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
                             selectedPersonnel.map((p, idx) => {
                               const isLeader = p.id === projectLeaderId;
                               return (
-                                <div key={idx} className={`p-4 border transition-all rounded-[24px] flex items-center justify-between group text-white text-left animate-in slide-in-from-bottom-4 ${isLeader ? 'bg-indigo-600/20 border-indigo-500/50 shadow-[0_0_20px_rgba(79,70,229,0.3)]' : 'bg-white/5 border-white/5'}`}>
-                                    <div className="flex items-center space-x-4 min-w-0 flex-1 text-left">
+                                <div key={p.id} className={`p-4 border transition-all rounded-[24px] flex items-center justify-between group text-white text-left animate-in slide-in-from-bottom-4 ${isLeader ? 'bg-indigo-600/20 border-indigo-500/50 shadow-[0_0_20px_rgba(79,70,229,0.3)]' : 'bg-white/5 border-white/5'}`}>
+                                    <div className="flex items-center space-x-3 min-w-0 flex-1 text-left">
+                                      {/* 排序箭头 */}
+                                      {canEditTeam && (
+                                        <div className="flex flex-col space-y-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                          <button onClick={() => moveMember(idx, -1)} disabled={idx === 0} className="p-0.5 text-slate-600 hover:text-white disabled:opacity-20 transition-colors rounded"><ArrowUp size={12} /></button>
+                                          <button onClick={() => moveMember(idx, 1)} disabled={idx === selectedPersonnel.length - 1} className="p-0.5 text-slate-600 hover:text-white disabled:opacity-20 transition-colors rounded"><ArrowDown size={12} /></button>
+                                        </div>
+                                      )}
                                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0 shadow-lg transition-colors ${isLeader ? 'bg-indigo-600 text-white ring-4 ring-indigo-600/20' : 'bg-slate-800 text-slate-400'}`}>
                                         {isLeader ? <Medal size={18} /> : idx + 1}
                                       </div>
@@ -823,10 +850,10 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
                                     </div>
                                     <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                       {canEditTeam && (
-                                        <button 
-                                          onClick={() => setProjectLeaderId(isLeader ? null : p.id)} 
+                                        <button
+                                          onClick={() => handleSetLeader(p.id)}
                                           className={`p-2 rounded-lg transition-all ${isLeader ? 'text-blue-400 bg-blue-400/10' : 'text-slate-500 hover:text-blue-400 hover:bg-white/5'}`}
-                                          title={isLeader ? "取消负责人身份" : "设为项目负责人"}
+                                          title={isLeader ? "取消负责人身份" : "设为负责人并置顶"}
                                         >
                                           <Star size={14} fill={isLeader ? "currentColor" : "none"} />
                                         </button>

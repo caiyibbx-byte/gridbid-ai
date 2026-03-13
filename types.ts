@@ -55,16 +55,17 @@ export interface StaffMember {
 
 export interface Tender {
   id: string;
-  projectId: string; 
+  projectId: string;
   title: string;
   category: string;
-  type: '服务' | '物资' | '施工'; 
+  type: '服务' | '物资' | '施工';
   publishDate: string;
-  deadline: string; 
-  openingTime: string; 
-  openingLocation: string; 
-  purchaser: string; 
+  deadline: string;
+  openingTime: string;
+  openingLocation: string;
+  purchaser: string;
   status: '正在采购' | '已结束' | '待发布' | 'analyzed' | 'new';
+  platform?: '国网' | '南网' | '其他来源';
   summary?: string;
   budget?: string;
   subPackages?: SubPackage[];

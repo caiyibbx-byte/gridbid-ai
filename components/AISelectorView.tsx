@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { 
   Bot, 
   Send, 
@@ -64,16 +64,74 @@ const ICON_OPTIONS = [
   { name: 'Zap', icon: Zap }
 ];
 
+type AIColDef = { key: string; label: string; width: string; renderTd: (row: any) => React.ReactNode };
+
+const AI_DRAGGABLE_COLS: AIColDef[] = [
+  { key: 'platform',     label: '来源',              width: 'w-28', renderTd: row => { const styles: Record<string,string> = {'国网':'bg-blue-50 text-blue-700 border-blue-200','南网':'bg-emerald-50 text-emerald-700 border-emerald-200','其他来源':'bg-slate-100 text-slate-500 border-slate-200'}; const p = row.platform ?? '其他来源'; return <td key="platform" className="px-4 py-4 border-r border-slate-100"><span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${styles[p]??styles['其他来源']}`}>{p}</span></td>; } },
+  { key: 'projectId',    label: '采购项目编号',        width: 'w-48', renderTd: row => <td key="projectId"    className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-600 italic">{row.projectId}</td> },
+  { key: 'tenderTitle',  label: '项目名称',           width: 'w-80', renderTd: row => <td key="tenderTitle"  className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-800">{row.tenderTitle}</td> },
+  { key: 'lotNumber',    label: '包号',              width: 'w-24', renderTd: row => <td key="lotNumber"    className="px-4 py-4 border-r border-slate-100 text-xs font-black text-blue-600">{row.lotNumber}</td> },
+  { key: 'lotName',      label: '包名称',             width: 'w-64', renderTd: row => <td key="lotName"      className="px-4 py-4 border-r border-slate-100 text-xs font-black text-slate-900">{row.lotName}</td> },
+  { key: 'estAmount',    label: '预计金额(万)',        width: 'w-32', renderTd: row => <td key="estAmount"    className="px-4 py-4 border-r border-slate-100 text-sm font-black text-slate-900">{row.estAmount}</td> },
+  { key: 'deadline',     label: '采购文件获取截止时间', width: 'w-48', renderTd: row => <td key="deadline"     className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-600">{row.deadline}</td> },
+  { key: 'openingTime',  label: '开启应答文件时间',    width: 'w-48', renderTd: row => <td key="openingTime"  className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-blue-600">{row.openingTime}</td> },
+  { key: 'subBidNumber', label: '分标编号',           width: 'w-48', renderTd: row => <td key="subBidNumber" className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-600 italic">{row.subBidNumber}</td> },
+  { key: 'subBidName',   label: '分标名称',           width: 'w-60', renderTd: row => <td key="subBidName"   className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-800">{row.subBidName}</td> },
+  { key: 'scope',        label: '招标范围',           width: 'w-96', renderTd: row => <td key="scope"        className="px-4 py-4 border-r border-slate-100 text-[11px] text-slate-500 leading-relaxed max-w-xs truncate group-hover:whitespace-normal group-hover:overflow-visible group-hover:max-w-none">{row.scope}</td> },
+  { key: 'qualifications',label: '资质要求',          width: 'w-80', renderTd: row => <td key="qualifications" className="px-4 py-4 border-r border-slate-100 text-[11px] text-slate-500 leading-relaxed">{row.qualifications}</td> },
+  { key: 'experience',   label: '业绩要求',           width: 'w-80', renderTd: row => <td key="experience"   className="px-4 py-4 border-r border-slate-100 text-[11px] text-slate-500 leading-relaxed">{row.experience}</td> },
+  { key: 'personnel',    label: '人员要求',           width: 'w-80', renderTd: row => <td key="personnel"    className="px-4 py-4 border-r border-slate-100 text-[11px] text-slate-500 leading-relaxed">{row.personnel}</td> },
+  { key: 'purchaser',    label: '采购单位',           width: 'w-48', renderTd: row => <td key="purchaser"    className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-600 italic">{row.purchaser}</td> },
+  { key: 'duration',     label: '工期',              width: 'w-32', renderTd: row => <td key="duration"     className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-700">{row.duration}</td> },
+  { key: 'location',     label: '实施地点',           width: 'w-48', renderTd: row => <td key="location"     className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-700">{row.location}</td> },
+];
+
+const AI_INITIAL_COL_ORDER = [
+  'platform', 'projectId', 'tenderTitle', 'lotNumber', 'lotName', 'estAmount',
+  'deadline', 'openingTime', 'subBidNumber', 'subBidName',
+  'scope', 'qualifications', 'experience', 'personnel',
+  'purchaser', 'duration', 'location',
+];
+
 const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePlan }) => {
   const [messages, setMessages] = useState([
     { role: 'assistant', text: '您好！我是您的投标策略助手。我已经根据企业资质、历史业绩及人员负载，为您从全网招标中实时筛选并匹配了最优项目。建议优先查看 [特高压自动化扩建-包1]，该项目与您公司的 500kV 业绩匹配度极高。' }
   ]);
   const [input, setInput] = useState('');
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+  const [aiColOrder, setAiColOrder] = useState<string[]>(AI_INITIAL_COL_ORDER);
+  const aiDragKey = useRef<string | null>(null);
+  const [aiDragOver, setAiDragOver] = useState<string | null>(null);
+
+  const handleAIDragStart = (key: string) => { aiDragKey.current = key; };
+  const handleAIDragOver = (e: React.DragEvent, key: string) => { e.preventDefault(); if (aiDragKey.current !== key) setAiDragOver(key); };
+  const handleAIDrop = (key: string) => {
+    if (!aiDragKey.current || aiDragKey.current === key) { aiDragKey.current = null; setAiDragOver(null); return; }
+    setAiColOrder(prev => {
+      const next = [...prev];
+      const from = next.indexOf(aiDragKey.current!);
+      const to = next.indexOf(key);
+      next.splice(from, 1);
+      next.splice(to, 0, aiDragKey.current!);
+      return next;
+    });
+    aiDragKey.current = null;
+    setAiDragOver(null);
+  };
+  const handleAIDragEnd = () => { aiDragKey.current = null; setAiDragOver(null); };
+
+  useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
   const [keyword, setKeyword] = useState('');
   const [onlyValid, setOnlyValid] = useState(true);
   const [detailLot, setDetailLot] = useState<any | null>(null);
   const [viewMode, setViewMode] = useState<'card' | 'excel'>('excel');
   const [showSidebar, setShowSidebar] = useState(true);
+  const AI_PAGE_SIZE = 8;
+  const [aiPage, setAiPage] = useState(1);
+
+  useEffect(() => { setAiPage(1); }, [keyword, onlyValid]);
 
   // 规则引擎状态
   const [rules, setRules] = useState<RecRule[]>([
@@ -147,13 +205,14 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
   // 模拟数据
   const tenderPool = [
     { 
-      id: 'ai-t1', 
+      id: 'ai-t1',
       projectId: 'SG-HQ-2026-001',
-      title: '特高压自动化系统扩建及数字化平台升级项目', 
-      purchaser: '国家电网有限公司', 
-      deadline: '2026-10-20 16:00', 
+      title: '特高压自动化系统扩建及数字化平台升级项目',
+      purchaser: '国家电网有限公司',
+      platform: '国网',
+      deadline: '2026-10-20 16:00',
       openingTime: '2026-10-25 10:00',
-      match: 98, 
+      match: 98,
       tag: '极高匹配',
       lots: [{ 
         subBidNumber: 'SG-2026-HQ-01', subBidName: '特高压监控扩建分标', lotNumber: '包1', lotName: '核心监控系统集成', 
@@ -164,13 +223,14 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
       }]
     },
     { 
-      id: 'ai-t4', 
+      id: 'ai-t4',
       projectId: 'HB-XA-2026-004',
-      title: '国网雄安新区智慧配电网一期示范工程', 
-      purchaser: '国网河北电力', 
-      deadline: '2026-11-01 16:00', 
+      title: '国网雄安新区智慧配电网一期示范工程',
+      purchaser: '国网河北电力',
+      platform: '国网',
+      deadline: '2026-11-01 16:00',
       openingTime: '2026-11-05 16:00',
-      match: 94, 
+      match: 94,
       tag: '重点抢标',
       lots: [{ 
         subBidNumber: 'HB-XA-2026-02', subBidName: '智慧配电感知分标', lotNumber: '包2', lotName: '边缘计算网关及二次回路改造', 
@@ -180,13 +240,14 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
       }]
     },
     { 
-      id: 'ai-t2', 
+      id: 'ai-t2',
       projectId: 'JS-ST-2026-002',
-      title: '苏通大桥跨江塔基及输电线路维护服务', 
-      purchaser: '国网江苏电力', 
-      deadline: '2026-06-10 14:00', 
+      title: '苏通大桥跨江塔基及输电线路维护服务',
+      purchaser: '国网江苏电力',
+      platform: '国网',
+      deadline: '2026-06-10 14:00',
       openingTime: '2026-06-15 14:00',
-      match: 86, 
+      match: 86,
       tag: '高匹配',
       lots: [{ 
         subBidNumber: 'JS-ST-2026-01', subBidName: '跨江线路特维分标', lotNumber: '包1', lotName: '全面巡检与水下加固服务', 
@@ -195,21 +256,151 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
         personnel: '需配备持证潜水员及特种作业人员不少于 5 人。', duration: '120 日历天', location: '江苏省苏通大桥区域', maxPrice: '500.00', estAmount: '450.00', quoteMethod: '总价报折扣'
       }]
     },
-    { 
-      id: 'ai-t3', 
+    {
+      id: 'ai-t3',
       projectId: 'ZJ-RENT-2026-003',
-      title: '2026年配网不停电作业工具批量租赁项目', 
-      purchaser: '国网浙江电力', 
-      deadline: '2026-08-15 09:00', 
+      title: '2026年配网不停电作业工具批量租赁项目',
+      purchaser: '国网浙江电力',
+      platform: '国网',
+      deadline: '2026-08-15 09:00',
       openingTime: '2026-08-20 09:00',
-      match: 81, 
+      match: 81,
       tag: '建议参与',
-      lots: [{ 
-        subBidNumber: 'ZJ-RENT-2026-08', subBidName: '绝缘作业车租赁分标', lotNumber: '包1', lotName: '10kV特种作业斗臂车租赁', 
+      lots: [{
+        subBidNumber: 'ZJ-RENT-2026-08', subBidName: '绝缘作业车租赁分标', lotNumber: '包1', lotName: '10kV特种作业斗臂车租赁',
         scope: '租赁 10 台 10kV 带电作业斗臂车，含专职操作手。', qualifications: '具备特种设备经营租赁资质。',
         experience: '近两年具有同类特种车辆租赁服务记录。', personnel: '操作手需持有特种设备操作证。',
         duration: '12 个月', location: '浙江省内各供电局', maxPrice: '150.00', estAmount: '120.00', quoteMethod: '单台月租金报价'
       }]
+    },
+    {
+      id: 'ai-t5',
+      projectId: 'YN-PV-2026-005',
+      title: '云南电网2026年光伏并网接入工程调试与运维服务',
+      purchaser: '南方电网云南公司',
+      platform: '南网',
+      deadline: '2026-09-10 16:00',
+      openingTime: '2026-09-18 10:00',
+      match: 79,
+      tag: '建议参与',
+      lots: [
+        {
+          subBidNumber: 'YN-PV-2026-01', subBidName: '并网调试分标', lotNumber: '包1', lotName: '大型光伏电站并网调试服务',
+          scope: '对云南滇中地区500MW光伏电站开展并网调试、保护整定及AGC联调工作。',
+          qualifications: '具备电力系统调试一级资质，拥有光伏并网调试专业团队。',
+          experience: '近三年完成100MW及以上光伏电站并网调试项目不少于2项。',
+          personnel: '调试总工具备高级工程师职称，团队不少于10人。',
+          duration: '90日历天', location: '云南省楚雄、玉溪地区', maxPrice: '420.00', estAmount: '390.00', quoteMethod: '总价固定总价'
+        },
+        {
+          subBidNumber: 'YN-PV-2026-02', subBidName: '运维托管分标', lotNumber: '包2', lotName: '光伏电站年度运维托管',
+          scope: '提供云南滇中光伏基地全年智能巡检、故障抢修及发电效能优化管理服务。',
+          qualifications: '具备光伏电站运维服务资质及无人机巡检作业许可证。',
+          experience: '近两年承接200MW以上光伏运维托管项目。',
+          personnel: '驻场运维班组不少于15名，配备热成像无人机。',
+          duration: '365日历天', location: '云南省光伏基地现场', maxPrice: '280.00', estAmount: '260.00', quoteMethod: '年费总价承包'
+        }
+      ]
+    },
+    {
+      id: 'ai-t6',
+      projectId: 'SH-DT-2026-006',
+      title: '国网上海市电力公司2026年数字孪生智能变电站建设项目',
+      purchaser: '国网上海市电力公司',
+      platform: '国网',
+      deadline: '2026-07-25 16:00',
+      openingTime: '2026-08-02 09:00',
+      match: 92,
+      tag: '重点抢标',
+      lots: [
+        {
+          subBidNumber: 'SH-DT-2026-01', subBidName: '数字孪生建设分标', lotNumber: '包1', lotName: '220kV变电站数字孪生平台',
+          scope: '基于BIM+GIS技术，构建上海220kV徐家汇变电站高精度数字孪生模型，支持实时状态映射与仿真分析。',
+          qualifications: '具备软件开发甲级资质及CMMI3认证，具有GIS/BIM相关软件著作权。',
+          experience: '近三年具有电力行业数字孪生平台成功交付案例，单项合同金额不低于500万元。',
+          personnel: '项目技术总监具备10年以上电力数字化从业经验，团队不少于15人。',
+          duration: '300日历天', location: '上海市徐汇区', maxPrice: '1200.00', estAmount: '1100.00', quoteMethod: '总价固定总价'
+        }
+      ]
+    },
+    {
+      id: 'ai-t7',
+      projectId: 'GD-ESS-2026-007',
+      title: '国网广东电力2026年大型储能系统集成采购项目',
+      purchaser: '国网广东省电力有限公司',
+      platform: '国网',
+      deadline: '2026-10-05 16:00',
+      openingTime: '2026-10-15 09:00',
+      match: 75,
+      tag: '建议参与',
+      lots: [
+        {
+          subBidNumber: 'GD-ESS-2026-01', subBidName: '储能系统分标', lotNumber: '包1', lotName: '100MWh磷酸铁锂储能系统',
+          scope: '提供100MWh磷酸铁锂电池储能系统，含电池模组、PCS变流器、EMS能量管理系统及安装调试服务。',
+          qualifications: '具备储能系统集成资质，产品通过IEC 62619、GB/T 36276等认证。',
+          experience: '近三年完成50MWh以上磷酸铁锂储能系统交付案例不少于2项。',
+          personnel: '储能专业工程师不少于5名，现场调试人员不少于10名。',
+          duration: '180日历天', location: '广东省珠三角变电站站址', maxPrice: '3800.00', estAmount: '3600.00', quoteMethod: '总价固定总价'
+        },
+        {
+          subBidNumber: 'GD-ESS-2026-02', subBidName: '运维服务分标', lotNumber: '包2', lotName: '储能系统年度运维保障',
+          scope: '提供广东电网已投运储能电站的年度预防性维护、BMS升级及故障抢修服务。',
+          qualifications: '具备储能设备维修资质及高低压电工作业许可证。',
+          experience: '近两年有储能运维服务案例，累计运维规模不低于200MWh。',
+          personnel: '驻场工程师不少于8名，7×24小时响应。',
+          duration: '365日历天', location: '广东省内各储能站点', maxPrice: '800.00', estAmount: '740.00', quoteMethod: '年费总价承包'
+        }
+      ]
+    },
+    {
+      id: 'ai-t8',
+      projectId: 'HN-SJ-2026-008',
+      title: '南方电网海南公司2026年智能配电网数字化升级工程',
+      purchaser: '南方电网海南电力有限责任公司',
+      platform: '南网',
+      deadline: '2026-11-15 16:00',
+      openingTime: '2026-11-25 10:00',
+      match: 83,
+      tag: '高匹配',
+      lots: [
+        {
+          subBidNumber: 'HN-SJ-2026-01', subBidName: '配网数字化分标', lotNumber: '包1', lotName: '10kV配电网智能化改造',
+          scope: '对海口、三亚重点区域10kV配网实施智能化改造，部署配电自动化终端及通信设备。',
+          qualifications: '具备配电自动化系统集成资质，产品通过南网入围测试。',
+          experience: '近三年承接南方电网省公司配网自动化改造项目，规模不低于500台终端。',
+          personnel: '系统集成工程师不少于5名，配网专业技术人员不少于10名。',
+          duration: '270日历天', location: '海南省海口市、三亚市', maxPrice: '2200.00', estAmount: '2050.00', quoteMethod: '总价固定总价'
+        }
+      ]
+    },
+    {
+      id: 'ai-t9',
+      projectId: 'BJ-OPS-2026-009',
+      title: '国家电网有限公司2026年信息运维一体化平台建设项目',
+      purchaser: '国家电网有限公司信息通信分公司',
+      platform: '国网',
+      deadline: '2026-12-01 16:00',
+      openingTime: '2026-12-10 09:00',
+      match: 88,
+      tag: '高匹配',
+      lots: [
+        {
+          subBidNumber: 'BJ-OPS-2026-01', subBidName: '平台建设分标', lotNumber: '包1', lotName: '运维一体化智能平台开发',
+          scope: '建设覆盖监控、告警、变更、容量规划的运维一体化平台，集成AIOps智能根因分析引擎。',
+          qualifications: '具备信息系统集成一级资质，CMMI5认证，拥有AIOps相关专利或软著。',
+          experience: '近三年承接大型央企IT运维平台建设项目，单项合同金额不低于1000万元。',
+          personnel: '首席架构师具备15年以上IT运维经验，项目团队不少于25人。',
+          duration: '365日历天', location: '北京市西城区国家电网总部', maxPrice: '4500.00', estAmount: '4200.00', quoteMethod: '总价固定总价'
+        },
+        {
+          subBidNumber: 'BJ-OPS-2026-02', subBidName: '实施运营分标', lotNumber: '包2', lotName: '平台上线后运营支持服务',
+          scope: '为新建运维一体化平台提供上线后一年的持续迭代开发、二线支撑及驻场运营服务。',
+          qualifications: '具备信息系统集成及服务二级及以上资质。',
+          experience: '具有大型IT平台持续运营服务经验，年运营合同金额不低于300万元。',
+          personnel: '驻场技术顾问不少于3名，响应工程师不少于5名。',
+          duration: '365日历天', location: '北京市（远程+驻场）', maxPrice: '1200.00', estAmount: '1100.00', quoteMethod: '年费总价承包'
+        }
+      ]
     }
   ];
 
@@ -224,21 +415,25 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
         const searchStr = `${tender.title} ${lot.lotName} ${tender.purchaser} ${tender.tag}`.toLowerCase();
         if (keyword && !searchStr.includes(keyword.toLowerCase())) return;
         rows.push({
-          ...lot, 
+          ...lot,
           projectId: tender.projectId,
-          tenderTitle: tender.title, 
-          purchaser: tender.purchaser, 
-          deadline: tender.deadline, 
+          tenderTitle: tender.title,
+          purchaser: tender.purchaser,
+          platform: (tender as any).platform ?? '其他来源',
+          deadline: tender.deadline,
           openingTime: tender.openingTime,
-          match: tender.match, 
-          tag: tender.tag, 
-          isValid, 
+          match: tender.match,
+          tag: tender.tag,
+          isValid,
           combinedId: `${tender.id}_${lot.lotNumber}`
         });
       });
     });
     return rows.sort((a, b) => b.match - a.match);
   }, [keyword, onlyValid, rules]);
+
+  const aiTotalPages = Math.ceil(filteredLots.length / AI_PAGE_SIZE);
+  const pagedLots = filteredLots.slice((aiPage - 1) * AI_PAGE_SIZE, aiPage * AI_PAGE_SIZE);
 
   const handleLotToggle = (row: any) => {
     onTogglePlan({
@@ -247,7 +442,7 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
   };
 
   return (
-    <div className="flex h-[calc(100vh-160px)] space-x-6 text-left relative">
+    <div className="flex h-full space-x-6 text-left relative p-6">
       
       {/* 规则编辑模态框 */}
       {showRuleModal && editingRule && (
@@ -449,14 +644,14 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto p-0 custom-scrollbar-main bg-slate-50/20">
+        <div className="flex-1 flex flex-col overflow-hidden bg-slate-50/20">
           {filteredLots.length > 0 ? (
             viewMode === 'card' ? (
-              <div className="p-6 space-y-5">
+              <div className="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar-main">
                 <div className="flex items-center justify-between px-2 mb-2">
                    <div className="flex items-center space-x-2"><Zap size={14} className="text-amber-500" /><span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic text-left">GridGPT 已为您找到 {filteredLots.length} 个高价值目标</span></div>
                 </div>
-                {filteredLots.map(row => {
+                {pagedLots.map(row => {
                   const isInPlan = plannedIds.includes(row.combinedId);
                   return (
                     <div 
@@ -502,35 +697,46 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
                 })}
               </div>
             ) : (
-              <div className="min-w-max">
+              <div className="min-w-max overflow-auto flex-1 custom-scrollbar-main">
                 <table className="w-full text-left border-collapse">
                   <thead className="sticky top-0 z-30 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest">
                     <tr>
-                      <th className="sticky left-0 z-40 bg-slate-900 w-20 px-4 py-4 border-r border-slate-800 text-center">匹配度</th>
-                      <th className="sticky left-20 z-40 bg-slate-900 w-32 px-4 py-4 border-r border-slate-800">操作</th>
-                      <th className="w-40 px-4 py-4 border-r border-slate-800">推荐标签</th>
-                      <th className="w-48 px-4 py-4 border-r border-slate-800">采购项目编号</th>
-                      <th className="w-80 px-4 py-4 border-r border-slate-800">项目名称</th>
-                      <th className="w-48 px-4 py-4 border-r border-slate-800">采购文件获取截止时间</th>
-                      <th className="w-48 px-4 py-4 border-r border-slate-800">开启应答文件时间</th>
-                      <th className="w-48 px-4 py-4 border-r border-slate-800">分标编号</th>
-                      <th className="w-60 px-4 py-4 border-r border-slate-800">分标名称</th>
-                      <th className="w-24 px-4 py-4 border-r border-slate-800">包号</th>
-                      <th className="w-64 px-4 py-4 border-r border-slate-800">包名称</th>
-                      <th className="w-96 px-4 py-4 border-r border-slate-800">招标范围</th>
-                      <th className="w-80 px-4 py-4 border-r border-slate-800">资质要求</th>
-                      <th className="w-80 px-4 py-4 border-r border-slate-800">业绩要求</th>
-                      <th className="w-80 px-4 py-4 border-r border-slate-800">人员要求</th>
-                      <th className="w-48 px-4 py-4 border-r border-slate-800">采购单位</th>
-                      <th className="w-48 px-4 py-4 border-r border-slate-800">截止时间</th>
-                      <th className="w-32 px-4 py-4 border-r border-slate-800">工期</th>
-                      <th className="w-48 px-4 py-4 border-r border-slate-800">实施地点</th>
-                      <th className="w-32 px-4 py-4 border-r border-slate-800">预计金额(万)</th>
-                      <th className="w-32 px-4 py-4">详情</th>
+                      <th className="sticky left-0 z-40 bg-slate-900 w-20 px-4 py-4 border-r border-slate-800 text-center select-none">匹配度</th>
+                      <th className="sticky left-20 z-40 bg-slate-900 w-32 px-4 py-4 border-r border-slate-800 select-none">操作</th>
+                      {aiColOrder.map(key => {
+                        const col = AI_DRAGGABLE_COLS.find(c => c.key === key)!;
+                        if (!col) return null;
+                        const isDraggingThis = aiDragKey.current === key;
+                        const isDragOver = aiDragOver === key;
+                        return (
+                          <th
+                            key={key}
+                            draggable
+                            onDragStart={() => handleAIDragStart(key)}
+                            onDragOver={e => handleAIDragOver(e, key)}
+                            onDrop={() => handleAIDrop(key)}
+                            onDragEnd={handleAIDragEnd}
+                            className={`${col.width} px-4 py-4 border-r border-slate-800 cursor-grab active:cursor-grabbing select-none transition-all
+                              ${isDraggingThis ? 'opacity-40 bg-slate-700' : 'hover:bg-slate-800 hover:text-blue-300'}
+                              ${isDragOver ? 'border-l-2 border-l-blue-400 bg-slate-800 text-blue-300' : ''}
+                            `}
+                          >
+                            <span className="flex items-center gap-1.5">
+                              <svg className="opacity-30 flex-shrink-0" width="8" height="12" viewBox="0 0 8 12" fill="currentColor">
+                                <circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="2" r="1.5"/>
+                                <circle cx="2" cy="6" r="1.5"/><circle cx="6" cy="6" r="1.5"/>
+                                <circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/>
+                              </svg>
+                              {col.label}
+                            </span>
+                          </th>
+                        );
+                      })}
+                      <th className="w-20 px-4 py-4 select-none">详情</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-white">
-                    {filteredLots.map(row => {
+                    {pagedLots.map(row => {
                       const isInPlan = plannedIds.includes(row.combinedId);
                       return (
                         <tr key={row.combinedId} className={`group transition-colors ${!row.isValid ? 'opacity-50 grayscale bg-slate-50' : isInPlan ? 'bg-emerald-50/30' : 'hover:bg-slate-50'}`}>
@@ -539,7 +745,7 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
                           </td>
                           <td className="sticky left-20 z-20 bg-inherit px-4 py-4 border-r border-slate-100">
                             {row.isValid && (
-                              <button 
+                              <button
                                 onClick={() => handleLotToggle(row)}
                                 className={`w-full py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center ${
                                   isInPlan ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-900 text-white hover:bg-black'
@@ -550,25 +756,10 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
                               </button>
                             )}
                           </td>
-                          <td className="px-4 py-4 border-r border-slate-100">
-                            <span className={`px-2 py-0.5 text-[9px] font-black rounded-lg uppercase tracking-widest italic border ${row.match >= 90 ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-blue-50 text-blue-600 border-blue-200'}`}>{row.tag}</span>
-                          </td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-600 italic">{row.projectId}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-800">{row.tenderTitle}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-600">{row.deadline}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-blue-600">{row.openingTime}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-600 italic">{row.subBidNumber}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-800">{row.subBidName}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-xs font-black text-blue-600">{row.lotNumber}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-xs font-black text-slate-900">{row.lotName}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-[11px] text-slate-500 leading-relaxed max-w-xs truncate group-hover:whitespace-normal group-hover:overflow-visible group-hover:max-w-none">{row.scope}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-[11px] text-slate-500 leading-relaxed">{row.qualifications}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-[11px] text-slate-500 leading-relaxed">{row.experience}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-[11px] text-slate-500 leading-relaxed">{row.personnel}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-600 italic">{row.purchaser}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-700">{row.duration}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-xs font-bold text-slate-700">{row.location}</td>
-                          <td className="px-4 py-4 border-r border-slate-100 text-sm font-black text-slate-900">{row.estAmount}</td>
+                          {aiColOrder.map(key => {
+                            const col = AI_DRAGGABLE_COLS.find(c => c.key === key)!;
+                            return col ? col.renderTd(row) : null;
+                          })}
                           <td className="px-4 py-4">
                             <button onClick={() => setDetailLot(row)} className="p-2 bg-slate-100 text-slate-400 hover:text-blue-600 rounded-lg transition-all">
                               <Eye size={14} />
@@ -588,6 +779,22 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
               <button onClick={() => {setKeyword(''); setOnlyValid(true);}} className="mt-6 text-xs font-bold text-blue-600 hover:underline flex items-center"><History size={14} className="mr-2" /> 重置所有筛选条件</button>
             </div>
           )}
+          {filteredLots.length > 0 && aiTotalPages > 1 && (
+            <div className="px-6 py-3 border-t border-slate-200 bg-white flex items-center justify-between shrink-0">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">
+                共 {filteredLots.length} 条 · 第 {aiPage} / {aiTotalPages} 页
+              </span>
+              <div className="flex items-center space-x-1">
+                <button onClick={() => setAiPage(1)} disabled={aiPage === 1} className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-slate-900 text-white hover:bg-black disabled:opacity-30 disabled:cursor-not-allowed transition-all">«</button>
+                <button onClick={() => setAiPage(p => Math.max(1, p - 1))} disabled={aiPage === 1} className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-slate-900 text-white hover:bg-black disabled:opacity-30 disabled:cursor-not-allowed transition-all">‹</button>
+                {Array.from({ length: aiTotalPages }, (_, i) => i + 1).map(page => (
+                  <button key={page} onClick={() => setAiPage(page)} className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${page === aiPage ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-900 hover:text-white'}`}>{page}</button>
+                ))}
+                <button onClick={() => setAiPage(p => Math.min(aiTotalPages, p + 1))} disabled={aiPage === aiTotalPages} className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-slate-900 text-white hover:bg-black disabled:opacity-30 disabled:cursor-not-allowed transition-all">›</button>
+                <button onClick={() => setAiPage(aiTotalPages)} disabled={aiPage === aiTotalPages} className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-slate-900 text-white hover:bg-black disabled:opacity-30 disabled:cursor-not-allowed transition-all">»</button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -600,12 +807,13 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
               <div className="flex items-center text-blue-400 font-black italic uppercase tracking-widest text-[10px]"><Bot size={18} className="mr-2" /><span>GridGPT 策略大脑</span></div>
               <Settings size={16} className="text-slate-600 hover:text-white cursor-pointer transition-colors" />
             </div>
-            <div className="flex-1 overflow-y-auto p-5 space-y-5 text-left custom-scrollbar-dark relative z-10">
+            <div className="flex-1 overflow-y-auto p-5 space-y-5 text-left relative z-10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {messages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2`}>
                   <div className={`max-w-[90%] p-4 rounded-2xl text-[11px] leading-relaxed shadow-lg ${m.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none font-bold' : 'bg-white/5 text-slate-300 border border-white/10 rounded-tl-none italic font-medium'}`}>{m.text}</div>
                 </div>
               ))}
+              <div ref={chatBottomRef} />
             </div>
             <div className="p-4 bg-slate-900/80 border-t border-white/5 relative z-10 text-left">
               <div className="flex items-center space-x-2 bg-white/5 border border-white/10 rounded-2xl p-1.5 focus-within:border-blue-500/50 transition-all">

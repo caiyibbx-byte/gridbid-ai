@@ -216,7 +216,7 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
   );
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 text-left relative">
+    <div className="flex flex-col h-full p-6 space-y-3 animate-in fade-in duration-500 text-left relative overflow-y-auto custom-scrollbar-main">
       {/* 角色指派模态框 */}
       {modalType && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-8">
@@ -251,55 +251,55 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
 
       <div className="flex justify-between items-center text-left">
         <div className="text-left">
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center uppercase italic leading-none">
+          <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center uppercase italic leading-none">
             投标计划管理
             {currentUser?.id !== 'ADMIN-001' && (
-              <span className="ml-4 px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-100 flex items-center italic">
-                <LockKeyhole size={12} className="mr-1.5"/> 数据受控模式
+              <span className="ml-3 px-2.5 py-0.5 bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-100 flex items-center italic">
+                <LockKeyhole size={11} className="mr-1"/> 数据受控模式
               </span>
             )}
           </h2>
-          <p className="text-slate-400 text-xs mt-2 italic font-bold uppercase tracking-widest">
+          <p className="text-slate-400 text-[10px] mt-1 italic font-bold uppercase tracking-widest">
             Bidding Pipeline & Execution Tracking
           </p>
         </div>
-        <div className="flex space-x-3">
-          <button className="bg-white border-2 border-slate-100 text-slate-600 px-5 py-2.5 rounded-xl flex items-center shadow-sm hover:bg-slate-50 transition-all font-black text-[10px] uppercase tracking-widest">
-            <Filter size={18} className="mr-2" /> 深度过滤
+        <div className="flex space-x-2">
+          <button className="bg-white border-2 border-slate-100 text-slate-600 px-4 py-2 rounded-xl flex items-center shadow-sm hover:bg-slate-50 transition-all font-black text-[10px] uppercase tracking-widest">
+            <Filter size={15} className="mr-1.5" /> 深度过滤
           </button>
-          <button className="bg-emerald-600 text-white px-5 py-2.5 rounded-xl flex items-center shadow-lg hover:bg-emerald-700 transition-all font-black text-[10px] uppercase tracking-widest italic">
-            <FileSpreadsheet size={18} className="mr-2" /> 导出本月计划
+          <button className="bg-emerald-600 text-white px-4 py-2 rounded-xl flex items-center shadow-lg hover:bg-emerald-700 transition-all font-black text-[10px] uppercase tracking-widest italic">
+            <FileSpreadsheet size={15} className="mr-1.5" /> 导出本月计划
           </button>
         </div>
       </div>
 
       {/* 列表 Tab 控制板 */}
-      <div className="flex items-center space-x-4 mb-2">
-        <button 
+      <div className="flex items-center space-x-3">
+        <button
           onClick={() => setActiveTab('active')}
-          className={`px-8 py-3.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center ${
-            activeTab === 'active' 
-              ? 'bg-slate-900 text-white shadow-xl translate-y-[-2px]' 
+          className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all flex items-center ${
+            activeTab === 'active'
+              ? 'bg-slate-900 text-white shadow-lg'
               : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-50'
           }`}
         >
-          <Zap size={14} className={`mr-2 ${activeTab === 'active' ? 'text-blue-400' : ''}`} />
+          <Zap size={13} className={`mr-1.5 ${activeTab === 'active' ? 'text-blue-400' : ''}`} />
           正在进行中计划 ({userAuthorizedTasks.filter(t => t.currentStage !== 'submitted').length})
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('submitted')}
-          className={`px-8 py-3.5 rounded-[20px] text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center ${
-            activeTab === 'submitted' 
-              ? 'bg-emerald-600 text-white shadow-xl translate-y-[-2px]' 
+          className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all flex items-center ${
+            activeTab === 'submitted'
+              ? 'bg-emerald-600 text-white shadow-lg'
               : 'bg-white text-slate-400 border border-slate-200 hover:bg-slate-50'
           }`}
         >
-          <CheckCircle2 size={14} className={`mr-2 ${activeTab === 'submitted' ? 'text-white' : ''}`} />
+          <CheckCircle2 size={13} className={`mr-1.5 ${activeTab === 'submitted' ? 'text-white' : ''}`} />
           完成投标活跃项目 ({userAuthorizedTasks.filter(t => t.currentStage === 'submitted').length})
         </button>
       </div>
 
-      <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[500px] text-left">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col flex-1 text-left">
         <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center space-x-4">
           <div className="flex-1 relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={18} />
@@ -317,11 +317,12 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
           <table className="w-full text-left">
             <thead className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 border-b border-slate-100">
               <tr>
-                <th className="px-8 py-6 w-[320px]">项目标包概览 Entity</th>
-                <th className="px-6 py-6 text-center">业绩遴选状态</th>
-                <th className="px-6 py-6 text-center">成员拟定状态</th>
-                <th className="px-6 py-6 text-center">方案编撰状态</th>
-                <th className="px-8 py-6 text-right">
+                <th className="px-6 py-4 w-[300px]">项目标包概览 Entity</th>
+                <th className="px-4 py-4 text-center">来源</th>
+                <th className="px-4 py-4 text-center">业绩遴选状态</th>
+                <th className="px-4 py-4 text-center">成员拟定状态</th>
+                <th className="px-4 py-4 text-center">方案编撰状态</th>
+                <th className="px-6 py-4 text-right">
                   {activeTab === 'active' ? '业务操作' : '开标倒计时 / 存证'}
                 </th>
               </tr>
@@ -335,7 +336,7 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
                 
                 return (
                   <tr key={task.id} className={`transition-all group ${isSubmitted ? 'hover:bg-emerald-50/30' : 'hover:bg-slate-50/50'}`}>
-                    <td className="px-8 py-8">
+                    <td className="px-6 py-5">
                       <div className="max-w-[280px] text-left">
                         <div className="flex items-center space-x-2 mb-2">
                           <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase italic border ${
@@ -350,11 +351,28 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
                       </div>
                     </td>
                     
-                    <td className="px-4 py-8"><div className="flex justify-center"><StatusBadge status={task.expStatus} /></div></td>
-                    <td className="px-4 py-8"><div className="flex justify-center"><StatusBadge status={task.teamStatus} /></div></td>
-                    <td className="px-4 py-8"><div className="flex justify-center"><StatusBadge status={task.contentStatus} /></div></td>
+                    <td className="px-4 py-5">
+                      <div className="flex justify-center">
+                        {(() => {
+                          const p = task.platform ?? '其他来源';
+                          const styles: Record<string, string> = {
+                            '国网': 'bg-blue-50 text-blue-700 border-blue-200',
+                            '南网': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                            '其他来源': 'bg-slate-100 text-slate-500 border-slate-200',
+                          };
+                          return (
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${styles[p] ?? styles['其他来源']}`}>
+                              {p}
+                            </span>
+                          );
+                        })()}
+                      </div>
+                    </td>
+                    <td className="px-4 py-5"><div className="flex justify-center"><StatusBadge status={task.expStatus} /></div></td>
+                    <td className="px-4 py-5"><div className="flex justify-center"><StatusBadge status={task.teamStatus} /></div></td>
+                    <td className="px-4 py-5"><div className="flex justify-center"><StatusBadge status={task.contentStatus} /></div></td>
 
-                    <td className="px-8 py-8 text-right">
+                    <td className="px-6 py-5 text-right">
                       {activeTab === 'active' ? (
                         <div className="flex flex-col space-y-2 items-end">
                           <button 
