@@ -434,7 +434,7 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <div className={`flex-1 grid-bg custom-scrollbar-main text-left overflow-hidden flex flex-col ${currentView === AppView.AI_SELECTOR || currentView === AppView.CRAWLER || currentView === AppView.BID_PLAN || currentView === AppView.DASHBOARD || currentView === AppView.MANAGER_VIEW || currentView === AppView.PROJECT_BASE || currentView === AppView.STAFF_BASE ? 'p-0' : 'overflow-y-auto p-8'}`}>
+        <div className={`flex-1 grid-bg custom-scrollbar-main text-left overflow-hidden flex flex-col ${currentView === AppView.AI_SELECTOR || currentView === AppView.CRAWLER || currentView === AppView.BID_PLAN || currentView === AppView.DASHBOARD || currentView === AppView.MANAGER_VIEW || currentView === AppView.PROJECT_BASE || currentView === AppView.STAFF_BASE || currentView === AppView.BID_WORKSPACE ? 'p-0' : 'overflow-y-auto p-8'}`}>
           <div className={`${currentView === AppView.BID_WORKSPACE || currentView === AppView.AI_SELECTOR || currentView === AppView.CRAWLER || currentView === AppView.BID_PLAN || currentView === AppView.DASHBOARD || currentView === AppView.MANAGER_VIEW || currentView === AppView.PROJECT_BASE || currentView === AppView.STAFF_BASE ? 'max-w-full h-full' : 'max-w-7xl mx-auto pb-12'} transition-all duration-500`}>
             {renderView()}
           </div>
