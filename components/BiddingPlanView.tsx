@@ -37,7 +37,7 @@ const StatusBadge = ({ status }: { status?: PhaseStatus }) => {
   const { color, label } = config[status || PhaseStatus.NOT_STARTED];
   
   return (
-    <div className={`px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-widest text-center min-w-[70px] ${color}`}>
+    <div className={`px-3 py-1 rounded-lg border text-[10px] font-black uppercase tracking-widest text-center min-w-[64px] ${color}`}>
       {label}
     </div>
   );
@@ -340,9 +340,9 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
                 
                 return (
                   <tr key={task.id} className={`transition-all group ${isSubmitted ? 'hover:bg-emerald-50/30' : 'hover:bg-slate-50/50'}`}>
-                    <td className="px-6 py-5">
+                    <td className="px-6 py-3">
                       <div className="max-w-[280px] text-left">
-                        <div className="flex items-center space-x-2 mb-2">
+                        <div className="flex items-center space-x-2 mb-1">
                           <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase italic border ${
                             isSubmitted ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-blue-100 text-blue-700 border-blue-200'
                           }`}>
@@ -350,12 +350,12 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
                           </span>
                           <span className="text-[9px] font-mono font-black text-slate-300 uppercase tracking-tighter">{task.projectId}</span>
                         </div>
-                        <p className="text-base font-black text-slate-900 leading-tight truncate italic">{task.lotName || '整包项目'}</p>
-                        <p className="text-[11px] text-slate-400 truncate mt-1.5 font-bold italic">{task.title}</p>
+                        <p className="text-sm font-black text-slate-900 leading-tight truncate italic">{task.lotName || '整包项目'}</p>
+                        <p className="text-[11px] text-slate-400 truncate mt-0.5 font-bold italic">{task.title}</p>
                       </div>
                     </td>
-                    
-                    <td className="px-4 py-5">
+
+                    <td className="px-4 py-3">
                       <div className="flex justify-center">
                         {(() => {
                           const p = task.platform ?? '其他来源';
@@ -372,30 +372,30 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
                         })()}
                       </div>
                     </td>
-                    <td className="px-4 py-5"><div className="flex justify-center"><StatusBadge status={task.expStatus} /></div></td>
-                    <td className="px-4 py-5"><div className="flex justify-center"><StatusBadge status={task.teamStatus} /></div></td>
-                    <td className="px-4 py-5"><div className="flex justify-center"><StatusBadge status={task.contentStatus} /></div></td>
+                    <td className="px-4 py-3"><div className="flex justify-center"><StatusBadge status={task.expStatus} /></div></td>
+                    <td className="px-4 py-3"><div className="flex justify-center"><StatusBadge status={task.teamStatus} /></div></td>
+                    <td className="px-4 py-3"><div className="flex justify-center"><StatusBadge status={task.contentStatus} /></div></td>
 
-                    <td className="px-6 py-5 text-right">
+                    <td className="px-6 py-3 text-right">
                       {activeTab === 'active' ? (
-                        <div className="flex flex-col space-y-2 items-end">
-                          <button 
+                        <div className="flex items-center justify-end gap-2">
+                          <button
                             onClick={(e) => { e.stopPropagation(); onEnterWorkspace(task.id); }}
-                            className="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black shadow-lg transition-all flex items-center w-fit italic group-hover:translate-x-[-4px]"
+                            className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black shadow-lg transition-all flex items-center italic"
                           >
-                            <FileText size={14} className="mr-2" /> 编撰大厅
+                            <FileText size={13} className="mr-1.5" /> 编撰大厅
                           </button>
-                          
+
                           <div className="group/btn relative">
-                             <button 
+                             <button
                                onClick={(e) => { e.stopPropagation(); handleCompleteBidding(task); }}
-                               className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center w-fit shadow-lg ${
-                                 isDocReady 
-                                   ? 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95' 
+                               className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center shadow-lg ${
+                                 isDocReady
+                                   ? 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95'
                                    : 'bg-slate-100 text-slate-300 cursor-not-allowed border border-slate-200'
                                }`}
                              >
-                               {isDocReady ? <ClipboardCheck size={14} className="mr-2" /> : <Lock size={12} className="mr-2 opacity-50" />}
+                               {isDocReady ? <ClipboardCheck size={13} className="mr-1.5" /> : <Lock size={12} className="mr-1.5 opacity-50" />}
                                确认提交
                              </button>
                              {!isDocReady && (
@@ -410,31 +410,33 @@ const BiddingPlanView: React.FC<BiddingPlanViewProps> = ({ tasks, currentUser, o
                              )}
                           </div>
                           {currentUser?.id === 'ADMIN-001' && (
-                           <button onClick={(e) => { e.stopPropagation(); onRemoveTask(task.id); }} className="p-2 text-slate-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100">
-                             <Trash2 size={16} />
+                           <button onClick={(e) => { e.stopPropagation(); onRemoveTask(task.id); }} className="p-1.5 text-slate-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100">
+                             <Trash2 size={15} />
                            </button>
                          )}
                         </div>
                       ) : (
-                        <div className="flex flex-col items-end space-y-2">
-                           <div className="flex items-center space-x-2 text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-100 font-black text-[10px] uppercase tracking-widest italic">
-                              <Timer size={14} className="animate-pulse" /> 倒计时: 14h 22m
+                        <div className="flex items-center justify-end gap-3">
+                           <div className="text-right">
+                             <div className="flex items-center justify-end space-x-1.5 text-emerald-600 font-black text-[10px] uppercase tracking-widest italic">
+                               <Timer size={13} className="animate-pulse" /> <span>倒计时: 14h 22m</span>
+                             </div>
+                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">开标: {task.openingTime}</p>
                            </div>
-                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">开标时间: {task.openingTime}</p>
-                           <div className="flex space-x-2 mt-2">
-                              <button onClick={() => onEnterWorkspace(task.id)} className="p-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-white border border-slate-200 shadow-sm transition-all" title="查看文书存证"><Eye size={16}/></button>
-                              <button className="p-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition-all" title="下载存档"><Download size={16}/></button>
-                              <button 
+                           <div className="flex items-center gap-1.5">
+                              <button onClick={() => onEnterWorkspace(task.id)} className="p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-white border border-slate-200 shadow-sm transition-all" title="查看文书存证"><Eye size={15}/></button>
+                              <button className="p-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition-all" title="下载存档"><Download size={15}/></button>
+                              <button
                                 type="button"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
                                   setTaskToRollback(task);
-                                }} 
-                                className="relative p-2.5 bg-amber-500 text-white rounded-xl hover:bg-amber-600 shadow-lg flex items-center justify-center cursor-pointer z-50 active:scale-95 transition-all" 
+                                }}
+                                className="relative p-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 shadow-lg flex items-center justify-center cursor-pointer z-50 active:scale-95 transition-all"
                                 title="回退至进行中"
                               >
-                                <RotateCcw size={16} className="shrink-0" />
+                                <RotateCcw size={15} className="shrink-0" />
                               </button>
                            </div>
                         </div>
