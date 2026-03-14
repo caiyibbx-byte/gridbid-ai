@@ -1,19 +1,22 @@
 
 import React, { useState, useRef } from 'react';
 import { 
-  Users, 
-  Plus, 
-  Search, 
-  X, 
-  Save, 
-  Edit3, 
-  Trash2, 
-  Upload, 
-  BadgeCheck, 
-  GraduationCap, 
+  Users,
+  Plus,
+  Search,
+  X,
+  Save,
+  Edit3,
+  Trash2,
+  Upload,
+  BadgeCheck,
+  GraduationCap,
   UserCheck,
   ChevronRight,
   ChevronLeft,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
   FileUp,
   Image as ImageIcon,
   School,
@@ -297,6 +300,20 @@ const initialPersonnel: Personnel[] = [
   }
 ];
 
+type StaffSortKey = 'years' | 'similarYears' | 'age';
+
+const STAFF_COL_DEFS: { key: string; label: string; width: string; sortKey?: StaffSortKey }[] = [
+  { key: 'age',      label: '年龄',     width: 'w-[80px]',  sortKey: 'age' },
+  { key: 'education',label: '最高学历', width: 'w-[110px]' },
+  { key: 'title',    label: '技术职称', width: 'w-[180px]' },
+  { key: 'school',   label: '院校及专业 (毕业年份)', width: 'w-[280px]' },
+  { key: 'years',    label: '总工龄',   width: 'w-[100px]', sortKey: 'years' },
+  { key: 'similarYears', label: '类似工龄', width: 'w-[100px]', sortKey: 'similarYears' },
+  { key: 'certs',    label: '证书凭证状态', width: 'w-[420px]' },
+  { key: 'projects', label: '最近主要工作经历', width: 'w-[400px]' },
+];
+const STAFF_INITIAL_COL_ORDER = STAFF_COL_DEFS.map(c => c.key);
+
 const PersonnelBaseView: React.FC = () => {
   const STAFF_PAGE_SIZE = 8;
   const [personnelList, setPersonnelList] = useState<Personnel[]>(initialPersonnel);
@@ -305,6 +322,32 @@ const PersonnelBaseView: React.FC = () => {
   const [formData, setFormData] = useState<Partial<Personnel>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [staffPage, setStaffPage] = useState(1);
+  const [staffSortKey, setStaffSortKey] = useState<StaffSortKey>('similarYears');
+  const [staffSortDir, setStaffSortDir] = useState<'asc' | 'desc'>('desc');
+  const handleStaffSort = (key: StaffSortKey) => {
+    if (staffSortKey === key) { setStaffSortDir(prev => prev === 'desc' ? 'asc' : 'desc'); }
+    else { setStaffSortKey(key); setStaffSortDir('desc'); }
+    setStaffPage(1);
+  };
+  const [staffColOrder, setStaffColOrder] = useState<string[]>(STAFF_INITIAL_COL_ORDER);
+  const staffDragKey = useRef<string | null>(null);
+  const [staffDragOver, setStaffDragOver] = useState<string | null>(null);
+  const handleStaffDragStart = (key: string) => { staffDragKey.current = key; };
+  const handleStaffDragOver = (e: React.DragEvent, key: string) => { e.preventDefault(); if (staffDragKey.current !== key) setStaffDragOver(key); };
+  const handleStaffDrop = (key: string) => {
+    if (!staffDragKey.current || staffDragKey.current === key) { staffDragKey.current = null; setStaffDragOver(null); return; }
+    setStaffColOrder(prev => {
+      const next = [...prev];
+      const from = next.indexOf(staffDragKey.current!);
+      const to = next.indexOf(key);
+      next.splice(from, 1);
+      next.splice(to, 0, staffDragKey.current!);
+      return next;
+    });
+    staffDragKey.current = null;
+    setStaffDragOver(null);
+  };
+  const handleStaffDragEnd = () => { staffDragKey.current = null; setStaffDragOver(null); };
 
   const dynamicFileInputRef = useRef<HTMLInputElement>(null);
   const [uploadContext, setUploadContext] = useState<{type: 'cert' | 'work' | 'edu_grad' | 'edu_degree', index: number} | null>(null);
@@ -397,12 +440,18 @@ const PersonnelBaseView: React.FC = () => {
     setFormData({ ...formData, educations: newEdus });
   };
 
-  const filteredPersonnel = personnelList.filter(p => !searchQuery || p.name.includes(searchQuery) || p.title.includes(searchQuery) || p.school.includes(searchQuery) || p.major.includes(searchQuery) || p.certs.some(c => c.name.includes(searchQuery)));
+  const filteredPersonnel = personnelList
+    .filter(p => !searchQuery || p.name.includes(searchQuery) || p.title.includes(searchQuery) || p.school.includes(searchQuery) || p.major.includes(searchQuery) || p.certs.some(c => c.name.includes(searchQuery)))
+    .sort((a, b) => {
+      const va = a[staffSortKey] as number;
+      const vb = b[staffSortKey] as number;
+      return staffSortDir === 'desc' ? vb - va : va - vb;
+    });
   const staffTotalPages = Math.ceil(filteredPersonnel.length / STAFF_PAGE_SIZE);
   const pagedPersonnel = filteredPersonnel.slice((staffPage - 1) * STAFF_PAGE_SIZE, staffPage * STAFF_PAGE_SIZE);
 
   return (
-    <div className="h-full flex flex-col gap-4 p-8 animate-in fade-in duration-500 text-left">
+    <div className="h-full flex flex-col gap-2 p-4 animate-in fade-in duration-500 text-left">
       <input type="file" ref={dynamicFileInputRef} className="hidden" onChange={handleFileChange} accept="image/*,application/pdf" />
 
       {/* A4 导出预览遮罩层 */}
@@ -769,77 +818,100 @@ const PersonnelBaseView: React.FC = () => {
 
       {/* 头部布局 */}
       <div className="flex justify-between items-center text-left shrink-0">
-        <div className="flex items-center space-x-4">
-           <div className={`p-3 text-white rounded-2xl shadow-xl bg-indigo-600 shadow-indigo-100`}>
-             <Users size={24} />
+        <div className="flex items-center space-x-3">
+           <div className={`p-2 text-white rounded-xl shadow-lg bg-indigo-600 shadow-indigo-100`}>
+             <Users size={18} />
            </div>
            <div className="text-left">
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic leading-none">人员资质库</h2>
+            <h2 className="text-sm font-black text-slate-900 tracking-tight uppercase italic leading-none">人员资质库</h2>
           </div>
         </div>
-        <div className="flex space-x-3">
-          <button className="bg-white border-2 border-slate-100 text-slate-600 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center shadow-sm">
-            <Upload size={16} className="mr-2 text-indigo-600" /> 批量导入简历
+        <div className="flex space-x-2">
+          <button className="bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center shadow-sm">
+            <Upload size={13} className="mr-1.5 text-indigo-600" /> 批量导入简历
           </button>
-          <button onClick={openAddModal} className="bg-slate-900 text-white px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-black transition-all flex items-center">
-            <Plus size={16} className="mr-2" /> 新增主要人员
+          <button onClick={openAddModal} className="bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-black transition-all flex items-center">
+            <Plus size={13} className="mr-1.5" /> 新增主要人员
           </button>
         </div>
       </div>
 
       {/* 列表页检索栏 */}
       <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden flex flex-col flex-1 min-h-0 text-left">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
-          <div className="flex items-center space-x-4 flex-1 max-w-3xl">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
+          <div className="flex items-center space-x-3 flex-1 max-w-3xl">
             <div className="relative group flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" size={20} />
-              <input type="text" placeholder="快速检索姓名、证书、院校、专业或职称..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setStaffPage(1); }} className="w-full pl-12 pr-6 py-4 rounded-2xl border-2 border-slate-100 bg-white outline-none font-bold text-sm shadow-inner focus:border-indigo-600 transition-all" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-600 transition-colors" size={15} />
+              <input type="text" placeholder="快速检索姓名、证书、院校、专业或职称..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setStaffPage(1); }} className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-white outline-none font-bold text-sm shadow-inner focus:border-indigo-600 transition-all" />
             </div>
-            <button className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-100 flex items-center active:scale-95"><Search size={18} className="mr-3" /> 开始检索人员</button>
+            <button className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-100 flex items-center active:scale-95"><Search size={13} className="mr-1.5" /> 检索</button>
           </div>
         </div>
 
         <div className="flex-1 overflow-x-auto custom-scrollbar-main">
-          <table className="w-full text-left table-fixed border-collapse" style={{ width: '2800px' }}>
-            <thead className="text-[10px] font-black text-white uppercase tracking-[0.15em] bg-slate-900 sticky top-0 z-20">
+          <table className="w-full text-left table-fixed border-collapse" style={{ width: '1900px' }}>
+            <thead className="text-[10px] font-black text-white uppercase tracking-[0.12em] bg-slate-900 sticky top-0 z-20 whitespace-nowrap">
               <tr className="divide-x divide-white/5">
-                <th className="px-6 py-8 w-[180px] sticky left-0 bg-slate-900 shadow-xl text-indigo-400 text-center">姓名 (拟任职)</th>
-                <th className="px-6 py-8 w-[100px] text-center">年龄</th>
-                <th className="px-6 py-8 w-[120px] text-center">最高学历</th>
-                <th className="px-6 py-8 w-[180px]">技术职称</th>
-                <th className="px-6 py-8 w-[320px]">院校及专业 (毕业年份)</th>
-                <th className="px-6 py-8 w-[120px] text-center">总工龄</th>
-                <th className="px-6 py-8 w-[150px] text-center text-emerald-400">类似工龄</th>
-                <th className="px-6 py-8 w-[500px]">证书凭证状态 (Certificates)</th>
-                <th className="px-6 py-8 w-[500px]">最近主要工作经历摘要 (Project History)</th>
-                <th className="px-6 py-8 w-[180px] text-right sticky right-0 bg-slate-900 shadow-xl">档案操作</th>
+                <th className="px-3 py-3 w-[160px] sticky left-0 bg-slate-900 shadow-xl text-indigo-400 text-center">姓名 (拟任职)</th>
+                {staffColOrder.map(key => {
+                  const col = STAFF_COL_DEFS.find(c => c.key === key)!;
+                  return (
+                    <th
+                      key={key}
+                      className={`px-3 py-3 ${col.width} cursor-grab select-none ${key === 'similarYears' ? 'text-emerald-400' : ''} ${key === 'age' || key === 'years' || key === 'similarYears' ? 'text-center' : ''} ${staffDragOver === key ? 'bg-indigo-800' : ''}`}
+                      draggable
+                      onDragStart={() => handleStaffDragStart(key)}
+                      onDragOver={e => handleStaffDragOver(e, key)}
+                      onDrop={() => handleStaffDrop(key)}
+                      onDragEnd={handleStaffDragEnd}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {col.sortKey ? (
+                          <button onClick={e => { e.stopPropagation(); handleStaffSort(col.sortKey!); }} className="inline-flex items-center gap-1 hover:text-indigo-300">
+                            {col.label}
+                            {staffSortKey === col.sortKey ? (staffSortDir === 'desc' ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />) : <ChevronsUpDown className="w-3 h-3 opacity-40" />}
+                          </button>
+                        ) : col.label}
+                      </span>
+                    </th>
+                  );
+                })}
+                <th className="px-3 py-3 w-[100px] text-right sticky right-0 bg-slate-900 shadow-xl">档案操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {pagedPersonnel.map(p => (
-                <tr key={p.id} className="hover:bg-indigo-50/50 transition-all group cursor-pointer text-[12px]" onClick={() => handleEdit(p)}>
-                  <td className="px-6 py-6 font-black text-slate-800 sticky left-0 bg-white group-hover:bg-indigo-50/50 border-r border-slate-50 shadow-sm">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xl shadow-lg">{p.name[0]}</div>
-                      <div className="text-left">
-                        <span className="block text-sm leading-none">{p.name}</span>
-                        <span className="text-[9px] font-black text-indigo-500 uppercase tracking-tighter italic mt-1.5 block">{p.proposedPosition || '待定岗'}</span>
+                <tr key={p.id} className="hover:bg-indigo-50/50 transition-all group cursor-pointer text-[11px]" onClick={() => handleEdit(p)}>
+                  <td className="px-3 py-2.5 font-black text-slate-800 sticky left-0 bg-white group-hover:bg-indigo-50/50 border-r border-slate-50 shadow-sm">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-sm shadow-lg shrink-0">{p.name[0]}</div>
+                      <div className="text-left min-w-0">
+                        <span className="block text-xs font-black leading-none truncate">{p.name}</span>
+                        <span className="text-[9px] font-black text-indigo-500 uppercase tracking-tighter italic mt-1 block truncate">{p.proposedPosition || '待定岗'}</span>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-6 font-bold text-slate-600 text-center">{p.age}</td>
-                  <td className="px-6 py-6 font-black text-indigo-600 text-center uppercase italic">{p.education}</td>
-                  <td className="px-6 py-6 font-bold text-slate-700">{p.title}</td>
-                  <td className="px-6 py-6"><div className="text-slate-600 italic"><p className="font-black text-slate-800 leading-none">{p.school}</p><p className="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-tighter truncate">{p.major} ({p.gradDate}年毕)</p></div></td>
-                  <td className="px-6 py-6 font-black text-slate-900 text-center">{p.years}年</td>
-                  <td className="px-6 py-6 font-black text-emerald-600 text-center text-sm">{p.similarYears}年</td>
-                  <td className="px-6 py-6"><div className="flex flex-wrap gap-1.5">{p.certs.map((c, i) => <span key={i} className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-tighter flex items-center transition-all ${c.fileUrl ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-400 border border-slate-200'}`} title={c.name}>{c.fileUrl && <ImageIcon size={8} className="mr-1" />}{c.name.split('（')[0].split('(')[0]}</span>)}{p.certs.length === 0 && <span className="text-slate-300 italic">暂未关联证书</span>}</div></td>
-                  <td className="px-6 py-6"><div className="text-slate-500 italic truncate max-w-[480px]">{p.projects[0]?.projectName || '暂无项目记录'}</div></td>
-                  <td className="px-6 py-6 text-right sticky right-0 bg-white group-hover:bg-indigo-50/50 border-l border-slate-50">
-                    <div className="flex items-center justify-end space-x-2 opacity-40 group-hover:opacity-100 transition-all">
-                       <button onClick={(e) => { e.stopPropagation(); setShowDocPreview(p); }} className="p-2.5 bg-slate-100 hover:bg-blue-600 hover:text-white rounded-xl transition-all shadow-sm" title="导出预览"><FileDown size={16}/></button>
-                       <button onClick={(e) => { e.stopPropagation(); handleEdit(p); }} className="p-2.5 bg-slate-100 hover:bg-indigo-600 hover:text-white rounded-xl transition-all shadow-sm"><Edit3 size={16}/></button>
-                       <button onClick={(e) => { e.stopPropagation(); if(confirm('确认删除人员档案？')) setPersonnelList(prev => prev.filter(i => i.id !== p.id)); }} className="p-2.5 bg-slate-100 hover:bg-red-500 hover:text-white rounded-xl transition-all shadow-sm"><Trash2 size={16}/></button>
+                  {staffColOrder.map(key => {
+                    let content: React.ReactNode;
+                    let cls = 'px-3 py-2.5';
+                    switch (key) {
+                      case 'age':          content = p.age;           cls += ' font-bold text-slate-700 text-center'; break;
+                      case 'education':    content = p.education;     cls += ' font-black text-indigo-600 text-center uppercase italic'; break;
+                      case 'title':        content = p.title;         cls += ' font-bold text-slate-800 truncate'; break;
+                      case 'school':       content = <div><p className="font-black text-slate-900 leading-none truncate">{p.school}</p><p className="text-[10px] text-slate-600 font-bold uppercase mt-0.5 tracking-tighter truncate">{p.major} ({p.gradDate}年毕)</p></div>; break;
+                      case 'years':        content = `${p.years}年`;  cls += ' font-black text-slate-900 text-center'; break;
+                      case 'similarYears': content = `${p.similarYears}年`; cls += ' font-black text-emerald-600 text-center'; break;
+                      case 'certs':        content = <div className="flex flex-wrap gap-1">{p.certs.map((c, i) => <span key={i} className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter flex items-center ${c.fileUrl ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 border border-slate-200'}`} title={c.name}>{c.fileUrl && <ImageIcon size={7} className="mr-0.5" />}{c.name.split('（')[0].split('(')[0]}</span>)}{p.certs.length === 0 && <span className="text-slate-300 italic">暂未关联</span>}</div>; break;
+                      case 'projects':     content = <div className="text-slate-700 italic truncate">{p.projects[0]?.projectName || '暂无项目记录'}</div>; break;
+                      default:             content = null;
+                    }
+                    return <td key={key} className={cls}>{content}</td>;
+                  })}
+                  <td className="px-3 py-2.5 text-right sticky right-0 bg-white group-hover:bg-indigo-50/50 border-l border-slate-50">
+                    <div className="flex items-center justify-end space-x-1 opacity-40 group-hover:opacity-100 transition-all">
+                       <button onClick={(e) => { e.stopPropagation(); setShowDocPreview(p); }} className="p-1.5 bg-slate-100 hover:bg-blue-600 hover:text-white rounded-lg transition-all" title="导出预览"><FileDown size={13}/></button>
+                       <button onClick={(e) => { e.stopPropagation(); handleEdit(p); }} className="p-1.5 bg-slate-100 hover:bg-indigo-600 hover:text-white rounded-lg transition-all"><Edit3 size={13}/></button>
+                       <button onClick={(e) => { e.stopPropagation(); if(confirm('确认删除人员档案？')) setPersonnelList(prev => prev.filter(i => i.id !== p.id)); }} className="p-1.5 bg-slate-100 hover:bg-red-500 hover:text-white rounded-lg transition-all"><Trash2 size={13}/></button>
                     </div>
                   </td>
                 </tr>
@@ -848,7 +920,7 @@ const PersonnelBaseView: React.FC = () => {
           </table>
         </div>
         {staffTotalPages > 1 && (
-          <div className="shrink-0 flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-slate-50/30">
+          <div className="shrink-0 flex items-center justify-between px-4 py-2.5 border-t border-slate-100 bg-slate-50/30">
             <span className="text-xs text-slate-400 font-bold">共 {filteredPersonnel.length} 条记录，第 {staffPage} / {staffTotalPages} 页</span>
             <div className="flex items-center space-x-2">
               <button onClick={() => setStaffPage(p => Math.max(1, p - 1))} disabled={staffPage === 1} className="p-2 rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-indigo-50 hover:border-indigo-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"><ChevronLeft size={16} /></button>
