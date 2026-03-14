@@ -24,13 +24,37 @@ import {
   FileImage,
   Layers,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown
 } from 'lucide-react';
 import { ProjectExperience } from '../types';
 
 interface KnowledgeBaseViewProps {
   mode: 'projects' | 'personnel';
 }
+
+type KbSortKey = 'contractYear' | 'amount' | 'signingDate';
+
+const KB_COL_DEFS: { key: string; label: string; width: string; sortKey?: KbSortKey }[] = [
+  { key: 'contractYear',     label: '年份',     width: 'w-[90px]',  sortKey: 'contractYear' },
+  { key: 'projectType',      label: '类型',     width: 'w-[150px]' },
+  { key: 'projectName',      label: '项目全称', width: 'w-[420px]' },
+  { key: 'keywords',         label: '关键字',   width: 'w-[180px]' },
+  { key: 'extendedKeywords', label: '拓展关联词', width: 'w-[180px]' },
+  { key: 'leaderExperience', label: '承担工作', width: 'w-[320px]' },
+  { key: 'amount',           label: '金额(W)',  width: 'w-[110px]', sortKey: 'amount' },
+  { key: 'clientName',       label: '建设单位', width: 'w-[220px]' },
+  { key: 'contactInfo',      label: '联系人/电话', width: 'w-[180px]' },
+  { key: 'signingDate',      label: '签订日期', width: 'w-[120px]', sortKey: 'signingDate' },
+  { key: 'endDate',          label: '结束时间', width: 'w-[120px]' },
+  { key: 'location',         label: '地点',     width: 'w-[130px]' },
+  { key: 'contractStatus',   label: '合同情况', width: 'w-[100px]' },
+  { key: 'leader',           label: '负责人',   width: 'w-[120px]' },
+  { key: 'members',          label: '项目成员', width: 'w-[180px]' },
+];
+const KB_INITIAL_COL_ORDER = KB_COL_DEFS.map(c => c.key);
 
 const initialProjects: ProjectExperience[] = [
   { 
@@ -257,6 +281,32 @@ const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({ mode }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [kbPage, setKbPage] = useState(1);
   const KB_PAGE_SIZE = 8;
+  const [kbSortKey, setKbSortKey] = useState<KbSortKey>('contractYear');
+  const [kbSortDir, setKbSortDir] = useState<'asc' | 'desc'>('desc');
+  const handleKbSort = (key: KbSortKey) => {
+    if (kbSortKey === key) { setKbSortDir(prev => prev === 'desc' ? 'asc' : 'desc'); }
+    else { setKbSortKey(key); setKbSortDir('desc'); }
+    setKbPage(1);
+  };
+  const [kbColOrder, setKbColOrder] = useState<string[]>(KB_INITIAL_COL_ORDER);
+  const kbDragKey = useRef<string | null>(null);
+  const [kbDragOver, setKbDragOver] = useState<string | null>(null);
+  const handleKbDragStart = (key: string) => { kbDragKey.current = key; };
+  const handleKbDragOver = (e: React.DragEvent, key: string) => { e.preventDefault(); if (kbDragKey.current !== key) setKbDragOver(key); };
+  const handleKbDrop = (key: string) => {
+    if (!kbDragKey.current || kbDragKey.current === key) { kbDragKey.current = null; setKbDragOver(null); return; }
+    setKbColOrder(prev => {
+      const next = [...prev];
+      const from = next.indexOf(kbDragKey.current!);
+      const to = next.indexOf(key);
+      next.splice(from, 1);
+      next.splice(to, 0, kbDragKey.current!);
+      return next;
+    });
+    kbDragKey.current = null;
+    setKbDragOver(null);
+  };
+  const handleKbDragEnd = () => { kbDragKey.current = null; setKbDragOver(null); };
 
   const fileInputRefs = {
     contract: useRef<HTMLInputElement>(null),
@@ -365,16 +415,24 @@ const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({ mode }) => {
     </div>
   );
 
-  const filteredProjects = projects.filter(p => {
-    if (!searchTerm) return true;
-    const q = searchTerm.toLowerCase();
-    return p.projectName.toLowerCase().includes(q) || p.leader?.toLowerCase().includes(q) || p.clientName?.toLowerCase().includes(q) || p.keywords?.some(k => k.toLowerCase().includes(q));
-  });
+  const filteredProjects = projects
+    .filter(p => {
+      if (!searchTerm) return true;
+      const q = searchTerm.toLowerCase();
+      return p.projectName.toLowerCase().includes(q) || p.leader?.toLowerCase().includes(q) || p.clientName?.toLowerCase().includes(q) || p.keywords?.some(k => k.toLowerCase().includes(q));
+    })
+    .sort((a, b) => {
+      let va: number, vb: number;
+      if (kbSortKey === 'amount') { va = parseFloat(a.amount) || 0; vb = parseFloat(b.amount) || 0; }
+      else if (kbSortKey === 'signingDate') { const d = (a.signingDate || '').localeCompare(b.signingDate || ''); return kbSortDir === 'desc' ? -d : d; }
+      else { va = parseInt(a.contractYear) || 0; vb = parseInt(b.contractYear) || 0; }
+      return kbSortDir === 'desc' ? vb - va : va - vb;
+    });
   const kbTotalPages = Math.ceil(filteredProjects.length / KB_PAGE_SIZE);
   const pagedProjects = filteredProjects.slice((kbPage - 1) * KB_PAGE_SIZE, kbPage * KB_PAGE_SIZE);
 
   return (
-    <div className="h-full flex flex-col gap-4 p-8 animate-in fade-in duration-500 text-left">
+    <div className="h-full flex flex-col gap-2 p-4 animate-in fade-in duration-500 text-left">
       
       {/* 编辑模态框 */}
       {isEditModalOpen && (
@@ -639,94 +697,107 @@ const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({ mode }) => {
 
       {/* 列表头部 */}
       <div className="flex justify-between items-center text-left shrink-0">
-        <div className="flex items-center space-x-4">
-           <div className={`p-3 text-white rounded-2xl shadow-xl bg-blue-600`}>
-             <Briefcase size={24} />
+        <div className="flex items-center space-x-3">
+           <div className={`p-2 text-white rounded-xl shadow-lg bg-blue-600`}>
+             <Briefcase size={18} />
            </div>
            <div className="text-left">
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic leading-none">项目业绩库</h2>
+            <h2 className="text-sm font-black text-slate-900 tracking-tight uppercase italic leading-none">项目业绩库</h2>
           </div>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex space-x-2">
           <input type="file" ref={fileInputRefs.import} className="hidden" accept=".xlsx,.xls,.json" onChange={handleBatchImport} />
-          <button 
+          <button
             onClick={() => fileInputRefs.import.current?.click()}
-            className="bg-white border-2 border-slate-200 text-slate-600 px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center shadow-sm"
+            className="bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center shadow-sm"
           >
-            <Upload size={16} className="mr-2 text-blue-600" /> 批量导入
+            <Upload size={13} className="mr-1.5 text-blue-600" /> 批量导入
           </button>
-          <button onClick={openAddModal} className="bg-slate-900 text-white px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-black transition-all flex items-center">
-            <Plus size={16} className="mr-2" /> 录入新业绩
+          <button onClick={openAddModal} className="bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-black transition-all flex items-center">
+            <Plus size={13} className="mr-1.5" /> 录入新业绩
           </button>
         </div>
       </div>
 
       <div className="flex-1 min-h-0 bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden flex flex-col text-left">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between shrink-0">
-          <div className="flex items-center space-x-4 flex-1 max-w-2xl">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between shrink-0">
+          <div className="flex items-center space-x-3 flex-1 max-w-2xl">
             <div className="relative group flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={15} />
               <input type="text" value={searchInput} onChange={e => setSearchInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { setSearchTerm(searchInput); setKbPage(1); } }}
-                placeholder="搜索项目名称、负责人、关键字或建设单位..." className="w-full pl-12 pr-6 py-3.5 rounded-2xl border-2 border-slate-100 bg-white outline-none font-bold text-sm shadow-inner" />
+                placeholder="搜索项目名称、负责人、关键字或建设单位..." className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-white outline-none font-bold text-sm shadow-inner" />
             </div>
             <button onClick={() => { setSearchTerm(searchInput); setKbPage(1); }}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center shadow-lg shadow-blue-100">
-               <Search size={16} className="mr-2" /> 开始搜索
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center shadow-lg shadow-blue-100">
+               <Search size={13} className="mr-1.5" /> 搜索
             </button>
           </div>
         </div>
 
         <div className="flex-1 min-h-0 overflow-x-auto custom-scrollbar-main">
-          <table className="w-full text-left table-fixed border-collapse" style={{ width: '4080px' }}>
-            <thead className="text-[11px] font-black text-white uppercase tracking-[0.15em] bg-slate-900 sticky top-0 z-20">
+          <table className="w-full text-left table-fixed border-collapse" style={{ width: '2900px' }}>
+            <thead className="text-[10px] font-black text-white uppercase tracking-[0.12em] bg-slate-900 sticky top-0 z-20 whitespace-nowrap">
               <tr className="divide-x divide-white/5">
-                <th className="px-6 py-8 w-[80px] sticky left-0 bg-slate-900 shadow-xl text-blue-400 text-center">序号</th>
-                <th className="px-6 py-8 w-[120px]">签订年份</th>
-                <th className="px-6 py-8 w-[180px]">类型</th>
-                <th className="px-6 py-8 w-[500px]">项目全称</th>
-                <th className="px-6 py-8 w-[240px]">关键字</th>
-                <th className="px-6 py-8 w-[240px]">拓展关联词</th>
-                <th className="px-6 py-8 w-[400px]">承担工作</th>
-                <th className="px-6 py-8 w-[140px]">金额(W)</th>
-                <th className="px-6 py-8 w-[350px]">建设单位</th>
-                <th className="px-6 py-8 w-[240px]">联系人/电话</th>
-                <th className="px-6 py-8 w-[160px]">签订日期</th>
-                <th className="px-6 py-8 w-[160px]">结束时间</th>
-                <th className="px-6 py-8 w-[180px]">地点</th>
-                <th className="px-6 py-8 w-[140px]">合同情况</th>
-                <th className="px-6 py-8 w-[160px]">负责人</th>
-                <th className="px-6 py-8 w-[240px]">项目成员</th>
-                <th className="px-6 py-8 w-[160px] text-right sticky right-0 bg-slate-900 shadow-xl">操作</th>
+                <th className="px-3 py-3 w-[50px] sticky left-0 bg-slate-900 shadow-xl text-blue-400 text-center">序号</th>
+                {kbColOrder.map(key => {
+                  const col = KB_COL_DEFS.find(c => c.key === key)!;
+                  return (
+                    <th
+                      key={key}
+                      className={`px-3 py-3 ${col.width} cursor-grab select-none ${kbDragOver === key ? 'bg-blue-800' : ''}`}
+                      draggable
+                      onDragStart={() => handleKbDragStart(key)}
+                      onDragOver={e => handleKbDragOver(e, key)}
+                      onDrop={() => handleKbDrop(key)}
+                      onDragEnd={handleKbDragEnd}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {col.sortKey ? (
+                          <button onClick={e => { e.stopPropagation(); handleKbSort(col.sortKey!); }} className="inline-flex items-center gap-1 hover:text-blue-300">
+                            {col.label}
+                            {kbSortKey === col.sortKey ? (kbSortDir === 'desc' ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />) : <ChevronsUpDown className="w-3 h-3 opacity-40" />}
+                          </button>
+                        ) : col.label}
+                      </span>
+                    </th>
+                  );
+                })}
+                <th className="px-3 py-3 w-[110px] text-right sticky right-0 bg-slate-900 shadow-xl">操作</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {pagedProjects.map((p, index) => (
-                <tr key={p.id} className="hover:bg-blue-50/50 transition-all group cursor-pointer text-[12px]" onClick={() => handleEdit(p)}>
-                  <td className="px-6 py-6 font-black text-slate-400 sticky left-0 bg-white group-hover:bg-blue-50/50 border-r border-slate-50 text-center">{index + 1}</td>
-                  <td className="px-6 py-6 font-black text-slate-800">{p.contractYear}</td>
-                  <td className="px-6 py-6 font-bold text-blue-600 italic">{p.projectType}</td>
-                  <td className="px-6 py-6 font-black text-slate-900 leading-relaxed group-hover:text-blue-700">{p.projectName}</td>
-                  <td className="px-6 py-6 italic text-slate-400">{p.keywords?.join(', ')}</td>
-                  <td className="px-6 py-6 italic text-blue-400">{p.extendedKeywords?.join(', ')}</td>
-                  <td className="px-6 py-6 text-slate-500 italic truncate">{p.leaderExperience}</td>
-                  <td className="px-6 py-6 font-black text-slate-900 tracking-tighter text-sm">{p.amount}</td>
-                  <td className="px-6 py-6 font-bold text-slate-600 italic">{p.clientName}</td>
-                  <td className="px-6 py-6 whitespace-nowrap">
-                     <p className="font-black text-slate-800">{p.contact}</p>
-                     <p className="text-[10px] text-slate-400 font-mono">{p.phone}</p>
-                  </td>
-                  <td className="px-6 py-6 font-mono text-blue-500 font-bold">{p.signingDate}</td>
-                  <td className="px-6 py-6 font-mono text-slate-500 font-bold">{p.endDate}</td>
-                  <td className="px-6 py-6 text-slate-600 italic">{p.location}</td>
-                  <td className="px-6 py-6 text-xs text-blue-600 font-black">{p.contractStatus}</td>
-                  <td className="px-6 py-6 font-black text-slate-900">{p.leader}</td>
-                  <td className="px-6 py-6 text-slate-500 truncate italic">{p.members}</td>
-                  <td className="px-6 py-6 text-right sticky right-0 bg-white group-hover:bg-blue-50/50 border-l border-slate-50">
-                    <div className="flex items-center justify-end space-x-2">
-                       <button onClick={(e) => { e.stopPropagation(); setShowDocPreview(p); }} className="p-2.5 bg-slate-50 hover:bg-blue-600 hover:text-white rounded-xl transition-all" title="预览导出文档"><FileDown size={16}/></button>
-                       <button onClick={(e) => { e.stopPropagation(); handleEdit(p); }} className="p-2.5 bg-slate-50 hover:bg-slate-900 hover:text-white rounded-xl transition-all"><Edit3 size={16}/></button>
-                       <button onClick={(e) => { e.stopPropagation(); if(confirm('确认删除？')) setProjects(prev => prev.filter(i => i.id !== p.id)); }} className="p-2.5 bg-slate-50 hover:bg-red-500 hover:text-white rounded-xl transition-all"><Trash2 size={16}/></button>
+                <tr key={p.id} className="hover:bg-blue-50/50 transition-all group cursor-pointer text-[11px]" onClick={() => handleEdit(p)}>
+                  <td className="px-3 py-2.5 font-black text-slate-500 sticky left-0 bg-white group-hover:bg-blue-50/50 border-r border-slate-50 text-center">{index + 1}</td>
+                  {kbColOrder.map(key => {
+                    let content: React.ReactNode;
+                    let cls = 'px-3 py-2.5 truncate';
+                    switch (key) {
+                      case 'contractYear':     content = p.contractYear;                      cls += ' font-black text-slate-800'; break;
+                      case 'projectType':      content = p.projectType;                       cls += ' font-bold text-blue-600 italic'; break;
+                      case 'projectName':      content = p.projectName;                       cls += ' font-black text-slate-900 leading-snug group-hover:text-blue-700'; break;
+                      case 'keywords':         content = p.keywords?.join(', ');              cls += ' italic text-amber-600'; break;
+                      case 'extendedKeywords': content = p.extendedKeywords?.join(', ');      cls += ' italic text-violet-600'; break;
+                      case 'leaderExperience': content = p.leaderExperience;                  cls += ' text-slate-700 italic'; break;
+                      case 'amount':           content = p.amount;                            cls += ' font-black text-slate-900 tracking-tighter'; break;
+                      case 'clientName':       content = p.clientName;                        cls += ' font-bold text-slate-800 italic'; break;
+                      case 'contactInfo':      content = <><p className="font-black text-slate-800">{p.contact}</p><p className="text-[10px] text-slate-600 font-mono">{p.phone}</p></>;  cls += ' whitespace-nowrap'; break;
+                      case 'signingDate':      content = p.signingDate;                       cls += ' font-mono text-blue-500 font-bold'; break;
+                      case 'endDate':          content = p.endDate;                           cls += ' font-mono text-slate-700 font-bold'; break;
+                      case 'location':         content = p.location;                          cls += ' text-slate-800 italic'; break;
+                      case 'contractStatus':   content = p.contractStatus;                    cls += ' text-blue-600 font-black'; break;
+                      case 'leader':           content = p.leader;                            cls += ' font-black text-slate-900'; break;
+                      case 'members':          content = p.members;                           cls += ' text-slate-700 italic'; break;
+                      default:                 content = null;
+                    }
+                    return <td key={key} className={cls}>{content}</td>;
+                  })}
+                  <td className="px-3 py-2.5 text-right sticky right-0 bg-white group-hover:bg-blue-50/50 border-l border-slate-50">
+                    <div className="flex items-center justify-end space-x-1">
+                       <button onClick={(e) => { e.stopPropagation(); setShowDocPreview(p); }} className="p-1.5 bg-slate-50 hover:bg-blue-600 hover:text-white rounded-lg transition-all" title="预览导出文档"><FileDown size={13}/></button>
+                       <button onClick={(e) => { e.stopPropagation(); handleEdit(p); }} className="p-1.5 bg-slate-50 hover:bg-slate-900 hover:text-white rounded-lg transition-all"><Edit3 size={13}/></button>
+                       <button onClick={(e) => { e.stopPropagation(); if(confirm('确认删除？')) setProjects(prev => prev.filter(i => i.id !== p.id)); }} className="p-1.5 bg-slate-50 hover:bg-red-500 hover:text-white rounded-lg transition-all"><Trash2 size={13}/></button>
                     </div>
                   </td>
                 </tr>
@@ -735,7 +806,7 @@ const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({ mode }) => {
           </table>
         </div>
         {kbTotalPages > 1 && (
-          <div className="flex items-center justify-between px-8 py-4 border-t border-slate-100 shrink-0">
+          <div className="flex items-center justify-between px-4 py-2.5 border-t border-slate-100 shrink-0">
             <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
               共 {filteredProjects.length} 条 · 第 {kbPage} / {kbTotalPages} 页
             </span>
