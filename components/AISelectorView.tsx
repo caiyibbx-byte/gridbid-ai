@@ -38,7 +38,10 @@ import {
   Check,
   Layout,
   PanelRightClose,
-  PanelRightOpen
+  PanelRightOpen,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown
 } from 'lucide-react';
 
 interface AISelectorViewProps {
@@ -93,6 +96,9 @@ const AI_INITIAL_COL_ORDER = [
   'purchaser', 'duration', 'location',
 ];
 
+type SortKey = 'match' | 'estAmount' | 'deadline' | 'openingTime' | 'platform';
+const SORTABLE_COL_KEYS = new Set<string>(['estAmount', 'deadline', 'openingTime', 'platform']);
+
 const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePlan }) => {
   const [messages, setMessages] = useState([
     { role: 'assistant', text: '您好！我是您的投标策略助手。我已经根据企业资质、历史业绩及人员负载，为您从全网招标中实时筛选并匹配了最优项目。建议优先查看 [特高压自动化扩建-包1]，该项目与您公司的 500kV 业绩匹配度极高。' }
@@ -130,8 +136,20 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
   const [showSidebar, setShowSidebar] = useState(true);
   const AI_PAGE_SIZE = 8;
   const [aiPage, setAiPage] = useState(1);
+  const [sortKey, setSortKey] = useState<SortKey>('match');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
-  useEffect(() => { setAiPage(1); }, [keyword, onlyValid]);
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir(prev => prev === 'desc' ? 'asc' : 'desc');
+    } else {
+      setSortKey(key);
+      setSortDir('desc');
+    }
+    setAiPage(1);
+  };
+
+  useEffect(() => { setAiPage(1); }, [keyword, onlyValid, sortKey, sortDir]);
 
   // 规则引擎状态
   const [rules, setRules] = useState<RecRule[]>([
@@ -429,8 +447,19 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
         });
       });
     });
-    return rows.sort((a, b) => b.match - a.match);
-  }, [keyword, onlyValid, rules]);
+    return rows.sort((a, b) => {
+      let va: any, vb: any;
+      if (sortKey === 'match')       { va = a.match;                     vb = b.match; }
+      else if (sortKey === 'estAmount')   { va = parseFloat(a.estAmount) || 0; vb = parseFloat(b.estAmount) || 0; }
+      else if (sortKey === 'deadline')    { va = new Date(a.deadline).getTime();    vb = new Date(b.deadline).getTime(); }
+      else if (sortKey === 'openingTime') { va = new Date(a.openingTime).getTime(); vb = new Date(b.openingTime).getTime(); }
+      else if (sortKey === 'platform')    { va = a.platform;               vb = b.platform; }
+      else { va = a.match; vb = b.match; }
+      if (va < vb) return sortDir === 'asc' ? -1 : 1;
+      if (va > vb) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [keyword, onlyValid, rules, sortKey, sortDir]);
 
   const aiTotalPages = Math.ceil(filteredLots.length / AI_PAGE_SIZE);
   const pagedLots = filteredLots.slice((aiPage - 1) * AI_PAGE_SIZE, aiPage * AI_PAGE_SIZE);
@@ -649,6 +678,22 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
               <div className="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar-main">
                 <div className="flex items-center justify-between px-2 mb-2">
                    <div className="flex items-center space-x-2"><Zap size={14} className="text-amber-500" /><span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic text-left">GridGPT 已为您找到 {filteredLots.length} 个高价值目标</span></div>
+                   <select
+                     value={`${sortKey}-${sortDir}`}
+                     onChange={e => { const [k, d] = e.target.value.split('-'); setSortKey(k as SortKey); setSortDir(d as 'asc' | 'desc'); setAiPage(1); }}
+                     className="border border-slate-200 bg-white rounded-xl px-3 py-1.5 text-[10px] font-black text-slate-600 uppercase tracking-widest outline-none cursor-pointer hover:border-blue-400 transition-colors"
+                   >
+                     <option value="match-desc">匹配分 ↓ 高到低</option>
+                     <option value="match-asc">匹配分 ↑ 低到高</option>
+                     <option value="estAmount-desc">金额 ↓ 高到低</option>
+                     <option value="estAmount-asc">金额 ↑ 低到高</option>
+                     <option value="deadline-asc">截止时间 最早优先</option>
+                     <option value="deadline-desc">截止时间 最晚优先</option>
+                     <option value="openingTime-asc">开标时间 最早优先</option>
+                     <option value="openingTime-desc">开标时间 最晚优先</option>
+                     <option value="platform-asc">来源 A→Z</option>
+                     <option value="platform-desc">来源 Z→A</option>
+                   </select>
                 </div>
                 {pagedLots.map(row => {
                   const isInPlan = plannedIds.includes(row.combinedId);
@@ -700,8 +745,13 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
                 <table className="min-w-max w-full text-left border-collapse">
                   <thead className="sticky top-0 z-30 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest">
                     <tr>
-                      <th className="sticky left-0 z-40 bg-slate-900 w-20 px-4 py-4 border-r border-slate-800 text-center select-none">匹配度</th>
-                      <th className="sticky left-20 z-40 bg-slate-900 w-32 px-4 py-4 border-r border-slate-800 select-none">操作</th>
+                      <th className="sticky left-0 z-40 bg-slate-900 w-20 px-4 py-4 border-r border-slate-800 text-center select-none whitespace-nowrap">
+                        <button onClick={() => handleSort('match')} className={`flex items-center justify-center gap-1 w-full transition-colors ${sortKey === 'match' ? 'text-blue-300' : 'hover:text-blue-300'}`}>
+                          匹配度
+                          {sortKey === 'match' ? (sortDir === 'desc' ? <ChevronDown size={11}/> : <ChevronUp size={11}/>) : <ChevronsUpDown size={11} className="opacity-40"/>}
+                        </button>
+                      </th>
+                      <th className="sticky left-20 z-40 bg-slate-900 w-32 px-4 py-4 border-r border-slate-800 select-none whitespace-nowrap">操作</th>
                       {aiColOrder.map(key => {
                         const col = AI_DRAGGABLE_COLS.find(c => c.key === key)!;
                         if (!col) return null;
@@ -715,7 +765,7 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
                             onDragOver={e => handleAIDragOver(e, key)}
                             onDrop={() => handleAIDrop(key)}
                             onDragEnd={handleAIDragEnd}
-                            className={`${col.width} px-4 py-4 border-r border-slate-800 cursor-grab active:cursor-grabbing select-none transition-all
+                            className={`${col.width} px-4 py-4 border-r border-slate-800 cursor-grab active:cursor-grabbing select-none transition-all whitespace-nowrap
                               ${isDraggingThis ? 'opacity-40 bg-slate-700' : 'hover:bg-slate-800 hover:text-blue-300'}
                               ${isDragOver ? 'border-l-2 border-l-blue-400 bg-slate-800 text-blue-300' : ''}
                             `}
@@ -727,11 +777,19 @@ const AISelectorView: React.FC<AISelectorViewProps> = ({ plannedIds, onTogglePla
                                 <circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/>
                               </svg>
                               {col.label}
+                              {SORTABLE_COL_KEYS.has(key) && (
+                                <button
+                                  onClick={e => { e.stopPropagation(); handleSort(key as SortKey); }}
+                                  className={`ml-0.5 transition-colors ${sortKey === key ? 'text-blue-300' : 'opacity-40 hover:opacity-100'}`}
+                                >
+                                  {sortKey === key ? (sortDir === 'desc' ? <ChevronDown size={10}/> : <ChevronUp size={10}/>) : <ChevronsUpDown size={10}/>}
+                                </button>
+                              )}
                             </span>
                           </th>
                         );
                       })}
-                      <th className="w-20 px-4 py-4 select-none">详情</th>
+                      <th className="w-20 px-4 py-4 select-none whitespace-nowrap">详情</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-white">

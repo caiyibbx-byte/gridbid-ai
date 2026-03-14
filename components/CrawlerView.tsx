@@ -25,7 +25,10 @@ import {
   Users2,
   CalendarDays,
   Coins,
-  FileText
+  FileText,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown
 } from 'lucide-react';
 import { Tender, SystemLog, SubPackage } from '../types';
 
@@ -181,23 +184,23 @@ const mockTenders: Tender[] = [
         estAmount: '50.00',
         quoteMethod: '单价×人次'
       },
-      { id: '1-9',  index: 9,  subBidNumber: 'KFFKJ202601-09', subBidName: '现场运营分标',   lotNumber: '包9',  lotName: '客服现场综合运营管理',      scope: '统筹南北园区现场运营秩序管理，含值班排班、现场巡查及突发事件应急处置。', qualifications: '具备企业管理咨询资质或劳务派遣许可证。', experience: '近三年承接过500座席以上呼叫中心现场管理项目。', personnel: '现场运营经理不少于2名，班组长不少于6名。', duration: '365日历天', location: '天津/北京园区', maxPrice: '88.00', estAmount: '82.00', quoteMethod: '年费总价承包' },
-      { id: '1-10', index: 10, subBidNumber: 'KFFKJ202601-10', subBidName: '硬件维保分标',   lotNumber: '包10', lotName: 'IT硬件设备维保服务',             scope: '负责南北两园区服务器、存储、网络设备的巡检、故障处理及备件管理，提供7×24小时响应保障。', qualifications: '具备信息系统集成及服务二级及以上资质，主流厂商原厂授权。', experience: '近三年承接大型机房IT运维项目不少于2个。', personnel: '驻场工程师不少于4名，响应时间2小时内。', duration: '365日历天', location: '天津/北京双中心机房', maxPrice: '120.00', estAmount: '112.00', quoteMethod: '年费总价承包' },
-      { id: '1-11', index: 11, subBidNumber: 'KFFKJ202601-11', subBidName: '云存储分标',     lotNumber: '包11', lotName: '通话录音云存储与归档服务',        scope: '为客服中心全量通话录音提供合规云存储、检索回放及定期归档服务，满足监管要求。', qualifications: '具备云服务资质（可信云认证），信息系统集成二级及以上。', experience: '近三年承接金融或电力行业录音归档存储项目。', personnel: '云存储架构师1名，运维工程师不少于3名。', duration: '365日历天', location: '北京/天津云数据中心', maxPrice: '95.00', estAmount: '88.00', quoteMethod: '按TB容量月租' },
-      { id: '1-12', index: 12, subBidNumber: 'KFFKJ202601-12', subBidName: '网络接入分标',   lotNumber: '包12', lotName: '专线网络接入与带宽保障服务',      scope: '为南北两园区提供高质量互联网专线接入和园区内广域网互联，保障业务连续性。', qualifications: '具备工信部颁发的互联网接入服务许可证（IDC/ISP）。', experience: '近三年向大型呼叫中心提供专线网络接入服务。', personnel: '网络工程师驻场不少于2名，故障恢复时间4小时内。', duration: '365日历天', location: '天津园区+北京园区', maxPrice: '60.00', estAmount: '55.00', quoteMethod: '年费总价承包' },
-      { id: '1-13', index: 13, subBidNumber: 'KFFKJ202601-13', subBidName: '外呼平台分标',   lotNumber: '包13', lotName: '智能外呼营销平台建设',             scope: '建设支持AI语音外呼的自动化营销平台，集成意图识别与话术推荐引擎，支持千路并发。', qualifications: '具备电信增值业务许可证（呼叫中心业务），产品通过信通院检测。', experience: '具有国网或南网外呼平台建设或运营案例。', personnel: '算法工程师不少于3名，平台工程师不少于4名。', duration: '180日历天', location: '远程交付+现场部署', maxPrice: '210.00', estAmount: '195.00', quoteMethod: '总价固定总价' },
-      { id: '1-14', index: 14, subBidNumber: 'KFFKJ202601-14', subBidName: '智能排班分标',   lotNumber: '包14', lotName: '坐席智能排班与人力预测系统',       scope: '引入AI排班引擎，基于历史话务预测模型自动生成最优排班方案，支持弹性调整。', qualifications: '具备软件著作权，产品已在大型呼叫中心规模化应用。', experience: '近三年具有500座席以上呼叫中心排班系统交付案例。', personnel: '产品经理1名，算法工程师2名，实施顾问2名。', duration: '120日历天', location: '远程交付', maxPrice: '65.00', estAmount: '60.00', quoteMethod: '总价固定总价' },
-      { id: '1-15', index: 15, subBidNumber: 'KFFKJ202601-15', subBidName: '满意度分标',     lotNumber: '包15', lotName: '客户满意度调查与分析服务',        scope: '提供电话回访、在线问卷及NPS净推荐值调研，输出客户体验分析报告。', qualifications: '具备市场调查资质，具备数据分析相关软件著作权。', experience: '近三年为省级以上公用事业单位提供满意度调研服务。', personnel: '项目经理1名，数据分析师不少于3名。', duration: '365日历天', location: '远程+现场结合', maxPrice: '40.00', estAmount: '36.00', quoteMethod: '按调研量单价' },
-      { id: '1-16', index: 16, subBidNumber: 'KFFKJ202601-16', subBidName: '舆情监控分标',   lotNumber: '包16', lotName: '社交媒体舆情监控与预警服务',      scope: '对微博、微信、抖音等主流平台涉及国网客服的舆情信息进行7×24小时监控与分级预警。', qualifications: '具备互联网信息服务许可证，舆情监控系统已通过等保三级认证。', experience: '近三年承接央企或政府舆情监控服务项目。', personnel: '舆情分析师不少于4名，技术工程师2名。', duration: '365日历天', location: '远程监控', maxPrice: '48.00', estAmount: '44.00', quoteMethod: '年费总价承包' },
-      { id: '1-17', index: 17, subBidNumber: 'KFFKJ202601-17', subBidName: '法务支撑分标',   lotNumber: '包17', lotName: '客户投诉法务支撑与合规服务',      scope: '为涉及法律纠纷的客户投诉提供法务审核、证据固化及应诉支持，确保合规处置。', qualifications: '具备法律职业资格，律师事务所或法务咨询机构。', experience: '近三年为大型国有单位提供法务顾问或合规咨询服务。', personnel: '律师不少于3名，合规专员2名。', duration: '365日历天', location: '线上+天津园区驻场', maxPrice: '35.00', estAmount: '30.00', quoteMethod: '年费总价承包' },
-      { id: '1-18', index: 18, subBidNumber: 'KFFKJ202601-18', subBidName: '可视化分标',     lotNumber: '包18', lotName: '运营大屏可视化平台建设',           scope: '建设覆盖话务量、服务质量、人力效能的实时运营驾驶舱大屏，支持多屏联动展示。', qualifications: '具备软件开发资质，可视化产品获软件著作权认证。', experience: '近三年具有大型运营中心可视化平台交付案例。', personnel: 'UI设计师2名，前端工程师3名，数据工程师2名。', duration: '90日历天', location: '远程交付+现场安装', maxPrice: '80.00', estAmount: '74.00', quoteMethod: '总价固定总价' },
-      { id: '1-19', index: 19, subBidNumber: 'KFFKJ202601-19', subBidName: '心理健康分标',   lotNumber: '包19', lotName: '坐席心理健康干预与关怀服务',      scope: '为南北两园区在职坐席提供心理健康评估、团体辅导及危机干预服务。', qualifications: '具备心理咨询机构资质，持证心理咨询师不少于5名。', experience: '近三年为500人以上规模企业提供员工心理援助项目（EAP）。', personnel: '首席心理咨询师1名，咨询师不少于4名。', duration: '365日历天', location: '天津/北京园区+线上', maxPrice: '28.00', estAmount: '24.00', quoteMethod: '按人次单价' },
-      { id: '1-20', index: 20, subBidNumber: 'KFFKJ202601-20', subBidName: '安保服务分标',   lotNumber: '包20', lotName: '园区安全保卫与门禁管理服务',      scope: '负责南北两园区7×24小时安保巡逻、门禁系统管理及突发安全事件处置。', qualifications: '具备保安服务许可证，企业注册资本不低于100万元。', experience: '近三年为大型企业园区提供安保服务，合同金额不低于50万元/年。', personnel: '保安队长2名，保安员不少于20名，均持证上岗。', duration: '365日历天', location: '天津/北京园区', maxPrice: '72.00', estAmount: '66.00', quoteMethod: '年费总价承包' },
-      { id: '1-21', index: 21, subBidNumber: 'KFFKJ202601-21', subBidName: '保洁服务分标',   lotNumber: '包21', lotName: '园区保洁与环境卫生管理服务',      scope: '承担南北两园区办公区域、公共区域及机房环境的日常清洁保洁工作。', qualifications: '具备物业服务资质或保洁服务资质。', experience: '近三年为大型企业园区提供保洁服务，单项合同金额不低于30万元/年。', personnel: '保洁主管2名，保洁员不少于15名。', duration: '365日历天', location: '天津/北京园区', maxPrice: '45.00', estAmount: '40.00', quoteMethod: '年费总价承包' },
-      { id: '1-22', index: 22, subBidNumber: 'KFFKJ202601-22', subBidName: '餐饮服务分标',   lotNumber: '包22', lotName: '员工餐厅运营管理服务',             scope: '承担南北两园区员工餐厅的日常运营，提供早餐、午餐、晚餐及夜宵服务。', qualifications: '具备餐饮服务许可证，通过食品安全管理体系（ISO 22000）认证。', experience: '近三年为500人以上规模企业提供餐饮服务。', personnel: '厨师长2名，厨师不少于10名，服务员不少于8名。', duration: '365日历天', location: '天津/北京园区员工餐厅', maxPrice: '180.00', estAmount: '165.00', quoteMethod: '按月承包' },
-      { id: '1-23', index: 23, subBidNumber: 'KFFKJ202601-23', subBidName: '交通班车分标',   lotNumber: '包23', lotName: '员工通勤班车运营服务',             scope: '提供南北两园区员工上下班通勤班车服务，覆盖周边主要交通枢纽。', qualifications: '具备道路旅客运输经营许可证，车辆须通过年检。', experience: '近三年为大型企业提供员工班车服务。', personnel: '驾驶员不少于10名，均持A2或B2级驾驶证。', duration: '365日历天', location: '天津/北京园区周边路线', maxPrice: '60.00', estAmount: '54.00', quoteMethod: '按车次月租' },
-      { id: '1-24', index: 24, subBidNumber: 'KFFKJ202601-24', subBidName: '绿化养护分标',   lotNumber: '包24', lotName: '园区绿化与景观养护服务',           scope: '负责南北两园区室内外绿植、景观的日常养护、修剪及季节性更换。', qualifications: '具备园林绿化施工资质或相关专业资质。', experience: '近三年为大型企业园区提供绿化养护服务。', personnel: '园艺技师不少于2名，养护工人不少于5名。', duration: '365日历天', location: '天津/北京园区室内外', maxPrice: '25.00', estAmount: '22.00', quoteMethod: '年费总价承包' },
-      { id: '1-25', index: 25, subBidNumber: 'KFFKJ202601-25', subBidName: '工程维修分标',   lotNumber: '包25', lotName: '园区建筑及设施设备维修服务',       scope: '负责南北两园区水电、空调、消防、弱电及建筑结构的日常维修保养和紧急抢修。', qualifications: '具备建筑工程施工资质或房屋维修资质，相关专业人员持证上岗。', experience: '近三年为大型企业园区提供综合设施维修服务。', personnel: '工程主管2名，水电工、空调工等专业技工不少于10名。', duration: '365日历天', location: '天津/北京园区', maxPrice: '90.00', estAmount: '82.00', quoteMethod: '年费总价承包' }
+      { id: '1-9',  index: 9,  subBidNumber: 'KFFKJ202601-09', subBidName: '现场运营分标',   lotNumber: '包9',  lotName: '客服现场综合运营管理',      scope: '统筹南北园区现场运营秩序管理，含值班排班、现场巡查及突发事件应急处置。', qualifications: '具备企业管理咨询资质或劳务派遣许可证。', experience: '近三年承接过500座席以上呼叫中心现场管理项目。', personnel: '现场运营经理不少于2名，班组长不少于6名。', duration: '365日历天', location: '天津/北京园区', maxPrice: '340.00', estAmount: '318.00', quoteMethod: '年费总价承包' },
+      { id: '1-10', index: 10, subBidNumber: 'KFFKJ202601-10', subBidName: '硬件维保分标',   lotNumber: '包10', lotName: 'IT硬件设备维保服务',             scope: '负责南北两园区服务器、存储、网络设备的巡检、故障处理及备件管理，提供7×24小时响应保障。', qualifications: '具备信息系统集成及服务二级及以上资质，主流厂商原厂授权。', experience: '近三年承接大型机房IT运维项目不少于2个。', personnel: '驻场工程师不少于4名，响应时间2小时内。', duration: '365日历天', location: '天津/北京双中心机房', maxPrice: '520.00', estAmount: '488.00', quoteMethod: '年费总价承包' },
+      { id: '1-11', index: 11, subBidNumber: 'KFFKJ202601-11', subBidName: '云存储分标',     lotNumber: '包11', lotName: '通话录音云存储与归档服务',        scope: '为客服中心全量通话录音提供合规云存储、检索回放及定期归档服务，满足监管要求。', qualifications: '具备云服务资质（可信云认证），信息系统集成二级及以上。', experience: '近三年承接金融或电力行业录音归档存储项目。', personnel: '云存储架构师1名，运维工程师不少于3名。', duration: '365日历天', location: '北京/天津云数据中心', maxPrice: '138.00', estAmount: '125.00', quoteMethod: '按TB容量月租' },
+      { id: '1-12', index: 12, subBidNumber: 'KFFKJ202601-12', subBidName: '网络接入分标',   lotNumber: '包12', lotName: '专线网络接入与带宽保障服务',      scope: '为南北两园区提供高质量互联网专线接入和园区内广域网互联，保障业务连续性。', qualifications: '具备工信部颁发的互联网接入服务许可证（IDC/ISP）。', experience: '近三年向大型呼叫中心提供专线网络接入服务。', personnel: '网络工程师驻场不少于2名，故障恢复时间4小时内。', duration: '365日历天', location: '天津园区+北京园区', maxPrice: '76.00', estAmount: '68.00', quoteMethod: '年费总价承包' },
+      { id: '1-13', index: 13, subBidNumber: 'KFFKJ202601-13', subBidName: '外呼平台分标',   lotNumber: '包13', lotName: '智能外呼营销平台建设',             scope: '建设支持AI语音外呼的自动化营销平台，集成意图识别与话术推荐引擎，支持千路并发。', qualifications: '具备电信增值业务许可证（呼叫中心业务），产品通过信通院检测。', experience: '具有国网或南网外呼平台建设或运营案例。', personnel: '算法工程师不少于3名，平台工程师不少于4名。', duration: '180日历天', location: '远程交付+现场部署', maxPrice: '890.00', estAmount: '850.00', quoteMethod: '总价固定总价' },
+      { id: '1-14', index: 14, subBidNumber: 'KFFKJ202601-14', subBidName: '智能排班分标',   lotNumber: '包14', lotName: '坐席智能排班与人力预测系统',       scope: '引入AI排班引擎，基于历史话务预测模型自动生成最优排班方案，支持弹性调整。', qualifications: '具备软件著作权，产品已在大型呼叫中心规模化应用。', experience: '近三年具有500座席以上呼叫中心排班系统交付案例。', personnel: '产品经理1名，算法工程师2名，实施顾问2名。', duration: '120日历天', location: '远程交付', maxPrice: '230.00', estAmount: '215.00', quoteMethod: '总价固定总价' },
+      { id: '1-15', index: 15, subBidNumber: 'KFFKJ202601-15', subBidName: '满意度分标',     lotNumber: '包15', lotName: '客户满意度调查与分析服务',        scope: '提供电话回访、在线问卷及NPS净推荐值调研，输出客户体验分析报告。', qualifications: '具备市场调查资质，具备数据分析相关软件著作权。', experience: '近三年为省级以上公用事业单位提供满意度调研服务。', personnel: '项目经理1名，数据分析师不少于3名。', duration: '365日历天', location: '远程+现场结合', maxPrice: '58.00', estAmount: '52.00', quoteMethod: '按调研量单价' },
+      { id: '1-16', index: 16, subBidNumber: 'KFFKJ202601-16', subBidName: '舆情监控分标',   lotNumber: '包16', lotName: '社交媒体舆情监控与预警服务',      scope: '对微博、微信、抖音等主流平台涉及国网客服的舆情信息进行7×24小时监控与分级预警。', qualifications: '具备互联网信息服务许可证，舆情监控系统已通过等保三级认证。', experience: '近三年承接央企或政府舆情监控服务项目。', personnel: '舆情分析师不少于4名，技术工程师2名。', duration: '365日历天', location: '远程监控', maxPrice: '105.00', estAmount: '96.00', quoteMethod: '年费总价承包' },
+      { id: '1-17', index: 17, subBidNumber: 'KFFKJ202601-17', subBidName: '法务支撑分标',   lotNumber: '包17', lotName: '客户投诉法务支撑与合规服务',      scope: '为涉及法律纠纷的客户投诉提供法务审核、证据固化及应诉支持，确保合规处置。', qualifications: '具备法律职业资格，律师事务所或法务咨询机构。', experience: '近三年为大型国有单位提供法务顾问或合规咨询服务。', personnel: '律师不少于3名，合规专员2名。', duration: '365日历天', location: '线上+天津园区驻场', maxPrice: '42.00', estAmount: '36.00', quoteMethod: '年费总价承包' },
+      { id: '1-18', index: 18, subBidNumber: 'KFFKJ202601-18', subBidName: '可视化分标',     lotNumber: '包18', lotName: '运营大屏可视化平台建设',           scope: '建设覆盖话务量、服务质量、人力效能的实时运营驾驶舱大屏，支持多屏联动展示。', qualifications: '具备软件开发资质，可视化产品获软件著作权认证。', experience: '近三年具有大型运营中心可视化平台交付案例。', personnel: 'UI设计师2名，前端工程师3名，数据工程师2名。', duration: '90日历天', location: '远程交付+现场安装', maxPrice: '460.00', estAmount: '435.00', quoteMethod: '总价固定总价' },
+      { id: '1-19', index: 19, subBidNumber: 'KFFKJ202601-19', subBidName: '心理健康分标',   lotNumber: '包19', lotName: '坐席心理健康干预与关怀服务',      scope: '为南北两园区在职坐席提供心理健康评估、团体辅导及危机干预服务。', qualifications: '具备心理咨询机构资质，持证心理咨询师不少于5名。', experience: '近三年为500人以上规模企业提供员工心理援助项目（EAP）。', personnel: '首席心理咨询师1名，咨询师不少于4名。', duration: '365日历天', location: '天津/北京园区+线上', maxPrice: '33.00', estAmount: '28.00', quoteMethod: '按人次单价' },
+      { id: '1-20', index: 20, subBidNumber: 'KFFKJ202601-20', subBidName: '安保服务分标',   lotNumber: '包20', lotName: '园区安全保卫与门禁管理服务',      scope: '负责南北两园区7×24小时安保巡逻、门禁系统管理及突发安全事件处置。', qualifications: '具备保安服务许可证，企业注册资本不低于100万元。', experience: '近三年为大型企业园区提供安保服务，合同金额不低于50万元/年。', personnel: '保安队长2名，保安员不少于20名，均持证上岗。', duration: '365日历天', location: '天津/北京园区', maxPrice: '148.00', estAmount: '136.00', quoteMethod: '年费总价承包' },
+      { id: '1-21', index: 21, subBidNumber: 'KFFKJ202601-21', subBidName: '保洁服务分标',   lotNumber: '包21', lotName: '园区保洁与环境卫生管理服务',      scope: '承担南北两园区办公区域、公共区域及机房环境的日常清洁保洁工作。', qualifications: '具备物业服务资质或保洁服务资质。', experience: '近三年为大型企业园区提供保洁服务，单项合同金额不低于30万元/年。', personnel: '保洁主管2名，保洁员不少于15名。', duration: '365日历天', location: '天津/北京园区', maxPrice: '62.00', estAmount: '55.00', quoteMethod: '年费总价承包' },
+      { id: '1-22', index: 22, subBidNumber: 'KFFKJ202601-22', subBidName: '餐饮服务分标',   lotNumber: '包22', lotName: '员工餐厅运营管理服务',             scope: '承担南北两园区员工餐厅的日常运营，提供早餐、午餐、晚餐及夜宵服务。', qualifications: '具备餐饮服务许可证，通过食品安全管理体系（ISO 22000）认证。', experience: '近三年为500人以上规模企业提供餐饮服务。', personnel: '厨师长2名，厨师不少于10名，服务员不少于8名。', duration: '365日历天', location: '天津/北京园区员工餐厅', maxPrice: '395.00', estAmount: '368.00', quoteMethod: '按月承包' },
+      { id: '1-23', index: 23, subBidNumber: 'KFFKJ202601-23', subBidName: '交通班车分标',   lotNumber: '包23', lotName: '员工通勤班车运营服务',             scope: '提供南北两园区员工上下班通勤班车服务，覆盖周边主要交通枢纽。', qualifications: '具备道路旅客运输经营许可证，车辆须通过年检。', experience: '近三年为大型企业提供员工班车服务。', personnel: '驾驶员不少于10名，均持A2或B2级驾驶证。', duration: '365日历天', location: '天津/北京园区周边路线', maxPrice: '88.00', estAmount: '80.00', quoteMethod: '按车次月租' },
+      { id: '1-24', index: 24, subBidNumber: 'KFFKJ202601-24', subBidName: '绿化养护分标',   lotNumber: '包24', lotName: '园区绿化与景观养护服务',           scope: '负责南北两园区室内外绿植、景观的日常养护、修剪及季节性更换。', qualifications: '具备园林绿化施工资质或相关专业资质。', experience: '近三年为大型企业园区提供绿化养护服务。', personnel: '园艺技师不少于2名，养护工人不少于5名。', duration: '365日历天', location: '天津/北京园区室内外', maxPrice: '28.00', estAmount: '24.00', quoteMethod: '年费总价承包' },
+      { id: '1-25', index: 25, subBidNumber: 'KFFKJ202601-25', subBidName: '工程维修分标',   lotNumber: '包25', lotName: '园区建筑及设施设备维修服务',       scope: '负责南北两园区水电、空调、消防、弱电及建筑结构的日常维修保养和紧急抢修。', qualifications: '具备建筑工程施工资质或房屋维修资质，相关专业人员持证上岗。', experience: '近三年为大型企业园区提供综合设施维修服务。', personnel: '工程主管2名，水电工、空调工等专业技工不少于10名。', duration: '365日历天', location: '天津/北京园区', maxPrice: '175.00', estAmount: '162.00', quoteMethod: '年费总价承包' }
     ]
   },
   {
@@ -457,6 +460,9 @@ type ColDef = {
   renderTd: (pkg: SubPackage, tender: Tender) => React.ReactNode;
 };
 
+type SubPkgSortKey = 'estAmount' | 'maxPrice' | 'lotNumber';
+const SORTABLE_SUB_PKG_KEYS = new Set<string>(['estAmount', 'maxPrice', 'lotNumber']);
+
 const PLATFORM_STYLES: Record<string, string> = {
   '国网': 'bg-blue-50 text-blue-700 border-blue-200',
   '南网': 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -501,6 +507,18 @@ const CrawlerView: React.FC<CrawlerViewProps> = ({ plannedIds, onTogglePlan, onA
   ]);
   const dragKey = useRef<string | null>(null);
   const [dragOverKey, setDragOverKey] = useState<string | null>(null);
+  const [subPkgSortKey, setSubPkgSortKey] = useState<SubPkgSortKey | null>(null);
+  const [subPkgSortDir, setSubPkgSortDir] = useState<'asc' | 'desc'>('asc');
+
+  const handleSubPkgSort = (key: SubPkgSortKey) => {
+    if (subPkgSortKey === key) {
+      setSubPkgSortDir(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSubPkgSortKey(key);
+      setSubPkgSortDir('asc');
+    }
+    setSubPkgPage(1);
+  };
 
   const startCrawl = () => {
     setIsCrawling(true);
@@ -563,17 +581,28 @@ const CrawlerView: React.FC<CrawlerViewProps> = ({ plannedIds, onTogglePlan, onA
   const orderedCols = colOrder.map(k => DRAGGABLE_COLS.find(c => c.key === k)!).filter(Boolean);
 
   // 切换项目或搜索词时重置分包页码
-  React.useEffect(() => { setSubPkgPage(1); }, [selectedTender?.id, subPackageSearch]);
+  React.useEffect(() => { setSubPkgPage(1); }, [selectedTender?.id, subPackageSearch, subPkgSortKey, subPkgSortDir]);
 
-  // 分包分页计算
-  const filteredSubPkgs = selectedTender
-    ? (selectedTender.subPackages || []).filter(pkg => {
-        const s = subPackageSearch.toLowerCase();
-        return pkg.lotName.toLowerCase().includes(s) ||
-               pkg.subBidName.toLowerCase().includes(s) ||
-               pkg.scope.toLowerCase().includes(s);
-      })
-    : [];
+  // 分包过滤 + 排序
+  const filteredSubPkgs = React.useMemo(() => {
+    if (!selectedTender) return [];
+    const list = (selectedTender.subPackages || []).filter(pkg => {
+      const s = subPackageSearch.toLowerCase();
+      return pkg.lotName.toLowerCase().includes(s) ||
+             pkg.subBidName.toLowerCase().includes(s) ||
+             pkg.scope.toLowerCase().includes(s);
+    });
+    if (!subPkgSortKey) return list;
+    return [...list].sort((a, b) => {
+      let va: any, vb: any;
+      if (subPkgSortKey === 'estAmount')  { va = parseFloat(a.estAmount) || 0; vb = parseFloat(b.estAmount) || 0; }
+      else if (subPkgSortKey === 'maxPrice')   { va = parseFloat(a.maxPrice) || 0;  vb = parseFloat(b.maxPrice) || 0; }
+      else if (subPkgSortKey === 'lotNumber')  { va = a.lotNumber;                  vb = b.lotNumber; }
+      if (va < vb) return subPkgSortDir === 'asc' ? -1 : 1;
+      if (va > vb) return subPkgSortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [selectedTender, subPackageSearch, subPkgSortKey, subPkgSortDir]);
   const subPkgTotalPages = Math.ceil(filteredSubPkgs.length / SUB_PKG_PAGE_SIZE);
   const pagedSubPkgs = filteredSubPkgs.slice((subPkgPage - 1) * SUB_PKG_PAGE_SIZE, subPkgPage * SUB_PKG_PAGE_SIZE);
 
@@ -657,6 +686,16 @@ const CrawlerView: React.FC<CrawlerViewProps> = ({ plannedIds, onTogglePlan, onA
                                   <circle cx="2" cy="10" r="1.5"/><circle cx="6" cy="10" r="1.5"/>
                                 </svg>
                                 {col.label}
+                                {SORTABLE_SUB_PKG_KEYS.has(col.key) && (
+                                  <button
+                                    onClick={e => { e.stopPropagation(); handleSubPkgSort(col.key as SubPkgSortKey); }}
+                                    className={`ml-0.5 transition-colors ${subPkgSortKey === col.key ? 'text-blue-600' : 'opacity-30 hover:opacity-80'}`}
+                                  >
+                                    {subPkgSortKey === col.key
+                                      ? (subPkgSortDir === 'asc' ? <ChevronUp size={10}/> : <ChevronDown size={10}/>)
+                                      : <ChevronsUpDown size={10}/>}
+                                  </button>
+                                )}
                               </span>
                             </th>
                           );
