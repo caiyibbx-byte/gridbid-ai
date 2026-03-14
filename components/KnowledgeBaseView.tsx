@@ -23,7 +23,8 @@ import {
   Upload,
   FileImage,
   Layers,
-  ChevronRight
+  ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
 import { ProjectExperience } from '../types';
 
@@ -184,7 +185,67 @@ const initialProjects: ProjectExperience[] = [
     contractScanUrls: ['https://placehold.co/800x1200?text=P5+Annual+Maintenance+Contract'],
     invoiceUrls: ['https://placehold.co/1000x600?text=P5+Quarterly+Invoice'],
     invoiceVerifyUrls: ['https://placehold.co/800x600?text=P5+Tax+Record']
-  }
+  },
+  {
+    id: 'p6', contractYear: '2022', index: 48, projectType: '2. 变电站工程类',
+    projectName: '国网浙江电力500kV甬北变电站继保系统改造项目',
+    keywords: ['继保', '500kV', '改造'], extendedKeywords: ['保护定值', '二次接线', '调试'],
+    content: '完成500kV甬北变全站继电保护装置更换及二次回路改造，含联调及带负荷测试。',
+    signingDate: '2022-04', endDate: '2022-11', amount: '2350.0',
+    clientName: '国网浙江省电力有限公司', clientAddress: '杭州市上城区', contact: '赵总工', phone: '135-XXXX-XXXX',
+    remarks: '省级重点技改', location: '浙江省宁波市', contractStatus: '已完成', quality: '优',
+    leader: '张伟', leaderExperience: '担任项目总工，全程主持继保系统方案设计及现场调试，零缺陷投运。',
+    members: '继保组(6人)、施工队', memberExperience: '负责保护定值整定计算及二次接线工艺质量管控。',
+    contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: []
+  },
+  {
+    id: 'p7', contractYear: '2023', index: 49, projectType: '3. 配网工程类',
+    projectName: '广州南沙区2023年配网自动化改造工程（第二批）',
+    keywords: ['配网自动化', '南沙', '馈线终端'], extendedKeywords: ['FTU', 'DTU', '三遥'],
+    content: '对南沙区38条10kV线路实施自动化改造，部署馈线终端及通信设备，实现三遥功能。',
+    signingDate: '2023-03', endDate: '2023-09', amount: '680.0',
+    clientName: '广东电网有限责任公司广州供电局', clientAddress: '广州市南沙区', contact: '林工', phone: '138-XXXX-XXXX',
+    remarks: '政府民生工程', location: '广东省广州市南沙区', contractStatus: '已完成', quality: '优',
+    leader: '陈国栋', leaderExperience: '负责配网自动化系统架构设计及子站通信接入调试。',
+    members: '配网组(10人)、安装队', memberExperience: '负责FTU参数配置及主站联调测试。',
+    contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: []
+  },
+  {
+    id: 'p8', contractYear: '2021', index: 50, projectType: '1. 技术服务类',
+    projectName: '云南电网公司输变电设备状态检修技术支撑服务',
+    keywords: ['状态检修', '输变电', '技术支撑'], extendedKeywords: ['在线监测', '红外测温', '缺陷管理'],
+    content: '为云南电网提供年度输变电设备状态评价、带电检测及缺陷闭环处理技术服务。',
+    signingDate: '2021-01', endDate: '2021-12', amount: '420.0',
+    clientName: '云南电网有限责任公司', clientAddress: '昆明市五华区', contact: '孙副总', phone: '189-XXXX-XXXX',
+    remarks: '年度框架协议', location: '云南省昆明市', contractStatus: '已完成', quality: '合格',
+    leader: '刘明', leaderExperience: '担任技术负责人，统筹带电检测计划制定及现场安全管理。',
+    members: '检测团队(12人)', memberExperience: '负责红外热像分析报告编写及缺陷等级评定。',
+    contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: []
+  },
+  {
+    id: 'p9', contractYear: '2024', index: 51, projectType: '5. 信息化类',
+    projectName: '国网湖南电力碳资产管理平台建设及运营项目',
+    keywords: ['碳资产', '平台', '双碳'], extendedKeywords: ['碳排放', '绿电', '数据中台'],
+    content: '设计建设碳排放数据采集、核算、报告及交易全流程管理平台，对接全国碳市场。',
+    signingDate: '2024-02', endDate: '2024-10', amount: '550.0',
+    clientName: '国网湖南省电力有限公司', clientAddress: '长沙市岳麓区', contact: '黄总监', phone: '136-XXXX-XXXX',
+    remarks: '双碳示范项目', location: '湖南省长沙市', contractStatus: '履行中', quality: '优',
+    leader: '王芳', leaderExperience: '担任产品总监，主导碳核算方法论设计及与国家碳市场系统对接。',
+    members: '产品组(5人)、研发组(8人)', memberExperience: '负责前端数据可视化看板及碳交易报表模块开发。',
+    contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: []
+  },
+  {
+    id: 'p10', contractYear: '2023', index: 52, projectType: '4. 综合服务类',
+    projectName: '贵州电网2023年供电所综合能效提升咨询服务',
+    keywords: ['能效', '供电所', '综合提升'], extendedKeywords: ['节能诊断', '降损', '管理咨询'],
+    content: '对贵州电网50个供电所开展能效诊断，提出降损措施并跟踪实施，平均线损率降低0.8%。',
+    signingDate: '2023-05', endDate: '2023-12', amount: '280.0',
+    clientName: '贵州电网有限责任公司', clientAddress: '贵阳市云岩区', contact: '程科长', phone: '181-XXXX-XXXX',
+    remarks: '含现场勘察', location: '贵州省（多地）', contractStatus: '已完成', quality: '合格',
+    leader: '冯涛', leaderExperience: '项目经理，统筹50个供电所现场诊断及咨询报告编制工作。',
+    members: '能效咨询组(7人)', memberExperience: '负责线损分析模型搭建及数据采集规范制定。',
+    contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: []
+  },
 ];
 
 const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({ mode }) => {
@@ -192,6 +253,10 @@ const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({ mode }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showDocPreview, setShowDocPreview] = useState<ProjectExperience | null>(null);
   const [projectForm, setProjectForm] = useState<Partial<ProjectExperience>>({});
+  const [searchInput, setSearchInput] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [kbPage, setKbPage] = useState(1);
+  const KB_PAGE_SIZE = 8;
 
   const fileInputRefs = {
     contract: useRef<HTMLInputElement>(null),
@@ -300,8 +365,16 @@ const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({ mode }) => {
     </div>
   );
 
+  const filteredProjects = projects.filter(p => {
+    if (!searchTerm) return true;
+    const q = searchTerm.toLowerCase();
+    return p.projectName.toLowerCase().includes(q) || p.leader?.toLowerCase().includes(q) || p.clientName?.toLowerCase().includes(q) || p.keywords?.some(k => k.toLowerCase().includes(q));
+  });
+  const kbTotalPages = Math.ceil(filteredProjects.length / KB_PAGE_SIZE);
+  const pagedProjects = filteredProjects.slice((kbPage - 1) * KB_PAGE_SIZE, kbPage * KB_PAGE_SIZE);
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 text-left">
+    <div className="h-full flex flex-col gap-4 p-8 animate-in fade-in duration-500 text-left">
       
       {/* 编辑模态框 */}
       {isEditModalOpen && (
@@ -565,14 +638,13 @@ const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({ mode }) => {
       )}
 
       {/* 列表头部 */}
-      <div className="flex justify-between items-center text-left">
+      <div className="flex justify-between items-center text-left shrink-0">
         <div className="flex items-center space-x-4">
            <div className={`p-3 text-white rounded-2xl shadow-xl bg-blue-600`}>
              <Briefcase size={24} />
            </div>
            <div className="text-left">
             <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic leading-none">项目业绩库</h2>
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2 italic">Grid Project Assets Registry</p>
           </div>
         </div>
         <div className="flex space-x-3">
@@ -589,20 +661,23 @@ const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({ mode }) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden flex flex-col min-h-[600px] text-left">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
+      <div className="flex-1 min-h-0 bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden flex flex-col text-left">
+        <div className="p-6 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-4 flex-1 max-w-2xl">
             <div className="relative group flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size={18} />
-              <input type="text" placeholder={`搜索项目名称、负责人、关键字或建设单位...`} className="w-full pl-12 pr-6 py-3.5 rounded-2xl border-2 border-slate-100 bg-white outline-none font-bold text-sm shadow-inner" />
+              <input type="text" value={searchInput} onChange={e => setSearchInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { setSearchTerm(searchInput); setKbPage(1); } }}
+                placeholder="搜索项目名称、负责人、关键字或建设单位..." className="w-full pl-12 pr-6 py-3.5 rounded-2xl border-2 border-slate-100 bg-white outline-none font-bold text-sm shadow-inner" />
             </div>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center shadow-lg shadow-blue-100">
+            <button onClick={() => { setSearchTerm(searchInput); setKbPage(1); }}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center shadow-lg shadow-blue-100">
                <Search size={16} className="mr-2" /> 开始搜索
             </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-x-auto custom-scrollbar-main">
+        <div className="flex-1 min-h-0 overflow-x-auto custom-scrollbar-main">
           <table className="w-full text-left table-fixed border-collapse" style={{ width: '4080px' }}>
             <thead className="text-[11px] font-black text-white uppercase tracking-[0.15em] bg-slate-900 sticky top-0 z-20">
               <tr className="divide-x divide-white/5">
@@ -626,7 +701,7 @@ const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({ mode }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {projects.map((p, index) => (
+              {pagedProjects.map((p, index) => (
                 <tr key={p.id} className="hover:bg-blue-50/50 transition-all group cursor-pointer text-[12px]" onClick={() => handleEdit(p)}>
                   <td className="px-6 py-6 font-black text-slate-400 sticky left-0 bg-white group-hover:bg-blue-50/50 border-r border-slate-50 text-center">{index + 1}</td>
                   <td className="px-6 py-6 font-black text-slate-800">{p.contractYear}</td>
@@ -659,8 +734,31 @@ const KnowledgeBaseView: React.FC<KnowledgeBaseViewProps> = ({ mode }) => {
             </tbody>
           </table>
         </div>
+        {kbTotalPages > 1 && (
+          <div className="flex items-center justify-between px-8 py-4 border-t border-slate-100 shrink-0">
+            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+              共 {filteredProjects.length} 条 · 第 {kbPage} / {kbTotalPages} 页
+            </span>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setKbPage(p => Math.max(1, p - 1))} disabled={kbPage === 1}
+                className="w-8 h-8 rounded-xl flex items-center justify-center border border-slate-200 text-slate-500 hover:border-blue-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+                <ChevronLeft size={16} />
+              </button>
+              {Array.from({ length: kbTotalPages }, (_, i) => i + 1).map(p => (
+                <button key={p} onClick={() => setKbPage(p)}
+                  className={`w-8 h-8 rounded-xl text-xs font-black transition-all ${kbPage === p ? 'bg-blue-600 text-white shadow-md' : 'border border-slate-200 text-slate-500 hover:border-blue-500 hover:text-blue-600'}`}>
+                  {p}
+                </button>
+              ))}
+              <button onClick={() => setKbPage(p => Math.min(kbTotalPages, p + 1))} disabled={kbPage === kbTotalPages}
+                className="w-8 h-8 rounded-xl flex items-center justify-center border border-slate-200 text-slate-500 hover:border-blue-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
-      
+
       <style>{`
         @media print {
           .break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }

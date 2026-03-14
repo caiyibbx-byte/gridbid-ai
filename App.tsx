@@ -138,6 +138,7 @@ const App: React.FC = () => {
       deadline: '2024-11-05',
       status: 'analyzed',
       budget: '850万元',
+      platform: '国网',
       priority: 'high',
       source: 'crawler',
       assignDate: '2024-10-16',
@@ -171,6 +172,7 @@ const App: React.FC = () => {
       deadline: '2024-12-01',
       status: 'analyzed',
       budget: '1200万元',
+      platform: '南网',
       priority: 'medium',
       source: 'ai',
       assignDate: '2024-10-22',
@@ -188,7 +190,77 @@ const App: React.FC = () => {
       expStatus: PhaseStatus.NOT_STARTED,
       teamStatus: PhaseStatus.IN_PROGRESS,
       contentStatus: PhaseStatus.NOT_STARTED
-    }
+    },
+    {
+      id: 'plan-003_lot_1', projectId: 'SGCC-2024-PJ03', type: '物资',
+      openingTime: '2024-11-21 09:00:00', openingLocation: '济南招标大厅',
+      purchaser: '国网山东省电力有限公司', title: '国网山东电力2024年配网自动化终端采购项目',
+      category: '信通类', publishDate: '2024-10-18', deadline: '2024-11-20',
+      status: 'analyzed', budget: '620万元', platform: '国网', priority: 'medium',
+      source: 'crawler', assignDate: '2024-10-19', lotName: '包2：配网自动化开关设备',
+      progress: 60, currentStage: 'reviewing',
+      projectLeader: { id: 'gt4', name: '孙经理', role: '商务总监', years: 14, majorProject: '物资集采', tags: ['商务'] },
+      isExpDone: true, isTeamDone: true, isContentDone: false,
+      expStatus: PhaseStatus.COMPLETED, teamStatus: PhaseStatus.COMPLETED, contentStatus: PhaseStatus.IN_PROGRESS,
+    },
+    {
+      id: 'plan-004_lot_1', projectId: 'CSG-2024-PJ04', type: '物资',
+      openingTime: '2024-11-29 10:00:00', openingLocation: '南宁公共资源交易中心',
+      purchaser: '广西电网有限责任公司', title: '2024年南网广西电网继电保护装置框架采购',
+      category: '变电类', publishDate: '2024-10-22', deadline: '2024-11-28',
+      status: 'analyzed', budget: '980万元', platform: '南网', priority: 'high',
+      source: 'ai', assignDate: '2024-10-23', lotName: '包1：220kV线路保护装置',
+      progress: 30, currentStage: 'team_assigned',
+      projectLeader: { id: 'm2', name: '李经理', role: '技术主管', years: 10, majorProject: '云平台', tags: ['技术'] },
+      isExpDone: false, isTeamDone: true, isContentDone: false,
+      expStatus: PhaseStatus.NOT_STARTED, teamStatus: PhaseStatus.COMPLETED, contentStatus: PhaseStatus.NOT_STARTED,
+    },
+    {
+      id: 'plan-005_lot_1', projectId: 'SGCC-2024-PJ05', type: '工程',
+      openingTime: '2024-12-06 09:00:00', openingLocation: '武汉招标大厅',
+      purchaser: '国网湖北省电力有限公司', title: '国网湖北电力2024年输电线路铁塔组立工程',
+      category: '线路类', publishDate: '2024-10-25', deadline: '2024-12-05',
+      status: 'analyzed', budget: '1500万元', platform: '国网', priority: 'medium',
+      source: 'crawler', assignDate: '2024-10-26', lotName: '包3：500kV铁塔基础施工',
+      progress: 15, currentStage: 'scanned',
+      isExpDone: false, isTeamDone: false, isContentDone: false,
+      expStatus: PhaseStatus.NOT_STARTED, teamStatus: PhaseStatus.NOT_STARTED, contentStatus: PhaseStatus.NOT_STARTED,
+    },
+    {
+      id: 'plan-006_lot_1', projectId: 'SGCC-2024-PJ06', type: '物资',
+      openingTime: '2024-12-11 09:00:00', openingLocation: '南京公共资源交易中心',
+      purchaser: '国网江苏省电力有限公司', title: '国网江苏电力2024年第三次配网物资协议库存招标',
+      category: '综合类', publishDate: '2024-10-28', deadline: '2024-12-10',
+      status: 'analyzed', budget: '430万元', platform: '国网', priority: 'medium',
+      source: 'crawler', assignDate: '2024-10-29', lotName: '包4：低压配电箱及计量箱',
+      progress: 80, currentStage: 'drafting',
+      projectLeader: { id: 'gt6', name: '陈工', role: '商务助理', years: 5, majorProject: '投标上传', tags: ['商务'] },
+      isExpDone: true, isTeamDone: true, isContentDone: true,
+      expStatus: PhaseStatus.COMPLETED, teamStatus: PhaseStatus.COMPLETED, contentStatus: PhaseStatus.COMPLETED,
+    },
+    {
+      id: 'plan-007_lot_1', projectId: 'CSG-2024-PJ07', type: '服务',
+      openingTime: '2024-12-16 10:00:00', openingLocation: '昆明招标大厅',
+      purchaser: '云南电网有限责任公司', title: '2024年云南电网有限责任公司输变电运检服务外包',
+      category: '信通类', publishDate: '2024-10-30', deadline: '2024-12-15',
+      status: 'analyzed', budget: '760万元', platform: '南网', priority: 'high',
+      source: 'ai', assignDate: '2024-10-31', lotName: '包1：昆明区域变电站运维',
+      progress: 45, currentStage: 'team_assigned',
+      projectLeader: { id: 'm1', name: '张经理', role: '资深项目总监', score: 98, years: 15, majorProject: '国网浙江500kV站改', tags: ['商务'] },
+      isExpDone: true, isTeamDone: false, isContentDone: false,
+      expStatus: PhaseStatus.COMPLETED, teamStatus: PhaseStatus.IN_PROGRESS, contentStatus: PhaseStatus.NOT_STARTED,
+    },
+    {
+      id: 'plan-008_lot_1', projectId: 'SGCC-2024-PJ08', type: '工程',
+      openingTime: '2024-12-21 09:00:00', openingLocation: '成都公共资源交易中心',
+      purchaser: '国网四川省电力有限公司', title: '国网四川电力2024年城区配网改造工程',
+      category: '线路类', publishDate: '2024-11-01', deadline: '2024-12-20',
+      status: 'analyzed', budget: '2100万元', platform: '国网', priority: 'high',
+      source: 'crawler', assignDate: '2024-11-02', lotName: '包2：成都中心城区电缆敷设',
+      progress: 5, currentStage: 'scanned',
+      isExpDone: false, isTeamDone: false, isContentDone: false,
+      expStatus: PhaseStatus.NOT_STARTED, teamStatus: PhaseStatus.NOT_STARTED, contentStatus: PhaseStatus.NOT_STARTED,
+    },
   ]);
 
   const addToPlan = (tender: any, source: 'crawler' | 'ai' = 'crawler') => {
@@ -237,7 +309,7 @@ const App: React.FC = () => {
       case AppView.TEMPLATE_CONFIG: return <TemplateConfigView />;
       case AppView.PROJECT_BASE: return <KnowledgeBaseView mode="projects" />;
       case AppView.STAFF_BASE: return <PersonnelBaseView />;
-      case AppView.BID_WORKSPACE: return <BidWorkspaceView currentTask={selectedTask} currentUser={currentUser} onUpdateTask={updateTask} />;
+      case AppView.BID_WORKSPACE: return <BidWorkspaceView currentTask={selectedTask} currentUser={currentUser} onUpdateTask={updateTask} onBack={() => setCurrentView(AppView.BID_PLAN)} />;
       case AppView.LOG_MANAGEMENT: return <LogManagementView logs={logs} onClearLogs={() => setLogs([])} />;
       case AppView.AGENT_CONFIG: return <AgentConfigView />;
       case AppView.ADMIN: return <AdminView />;
@@ -362,8 +434,8 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto grid-bg p-8 custom-scrollbar-main text-left">
-          <div className={`${currentView === AppView.BID_WORKSPACE ? 'max-w-full px-2' : 'max-w-7xl mx-auto'} pb-12 transition-all duration-500`}>
+        <div className={`flex-1 grid-bg custom-scrollbar-main text-left overflow-hidden flex flex-col ${currentView === AppView.AI_SELECTOR || currentView === AppView.CRAWLER || currentView === AppView.BID_PLAN || currentView === AppView.DASHBOARD || currentView === AppView.MANAGER_VIEW || currentView === AppView.PROJECT_BASE || currentView === AppView.STAFF_BASE ? 'p-0' : 'overflow-y-auto p-8'}`}>
+          <div className={`${currentView === AppView.BID_WORKSPACE || currentView === AppView.AI_SELECTOR || currentView === AppView.CRAWLER || currentView === AppView.BID_PLAN || currentView === AppView.DASHBOARD || currentView === AppView.MANAGER_VIEW || currentView === AppView.PROJECT_BASE || currentView === AppView.STAFF_BASE ? 'max-w-full h-full' : 'max-w-7xl mx-auto pb-12'} transition-all duration-500`}>
             {renderView()}
           </div>
         </div>

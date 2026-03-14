@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
-  Users, Award, FileText, ChevronRight, BrainCircuit, 
-  RefreshCw, Download, Save, 
+  Users, Award, FileText, ChevronRight, BrainCircuit,
+  RefreshCw, Download, Save,
   Search, X, Sparkles, Check,
+  ArrowUp, ArrowDown,
   BadgeCheck, Zap, Layers,
   UserPlus, CheckCircle2,
   Plus, DatabaseZap,
@@ -69,6 +70,7 @@ interface BidWorkspaceViewProps {
   currentTask?: BiddingTask;
   currentUser: StaffUser | null;
   onUpdateTask?: (task: BiddingTask) => void;
+  onBack?: () => void;
 }
 
 interface TaskStatus {
@@ -142,7 +144,7 @@ const PersonnelFullDocumentMerged: React.FC<{ person: Personnel; isLeader?: bool
           <span className="text-[10pt] font-black uppercase tracking-widest font-sans italic">Project Leader</span>
         </div>
       )}
-      <h2 className="text-[18pt] font-black text-center mb-10 tracking-[6pt] underline underline-offset-[12px] decoration-slate-900">拟任本项目主要人员简历表</h2>
+      <h2 className="text-[18pt] font-black text-center mb-10 tracking-[3pt] underline underline-offset-[12px] decoration-slate-900">{isLeader ? `项目负责人——${person.name}个人简历及相关证书` : `${person.name}个人简历及相关证书`}</h2>
       <table className="w-full border-collapse border-[1.5pt] border-black text-[10.5pt] leading-[1.8]">
         <tbody>
           <tr>
@@ -238,7 +240,7 @@ const PersonnelFullDocumentMerged: React.FC<{ person: Personnel; isLeader?: bool
 // --------------------------------------------------------------------------------
 // 主工作空间组件
 // --------------------------------------------------------------------------------
-const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, currentUser, onUpdateTask }) => {
+const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, currentUser, onUpdateTask, onBack }) => {
   // 全员协作模式：取消权限限制
   const canEditTeam = true;
   const canEditExp = true;
@@ -250,13 +252,33 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
   const fullPersonnelPool: Personnel[] = [
     { id: 's-huang', name: '黄石亮', age: 40, education: '本科', title: '高级顾问', proposedPosition: '咨询顾问', years: 17, similarYears: 15, school: '中山大学', major: '计算机', gradDate: '2013', currentLoad: 0.6, educations: [{ level: '本科', school: '中山大学', major: '计算机', gradDate: '2013', gradCertUrl: 'https://placehold.co/800x600?text=Grad+Cert', degreeCertUrl: 'https://placehold.co/800x600?text=Degree+Cert' }], certs: [{ name: 'PMP证书', level: '高级', authority: 'PMI', number: 'PMP-123', validity: '2027', fileUrl: 'https://placehold.co/600x800?text=PMP+Cert' }], projects: [{ time: '2022', projectName: '南网科技成果转化咨询', role: '负责人', client: '南网', contact: '游X', phone: '156...', serviceType: '咨询' }] },
     { id: 's-zhang-wei', name: '张维国', age: 45, education: '博士', title: '教授级高级工程师', proposedPosition: '技术总监', years: 22, similarYears: 18, school: '清华大学', major: '电力自动化', gradDate: '2008', currentLoad: 0.4, educations: [{ level: '博士', school: '清华大学', major: '电力系统及其自动化', gradDate: '2008', gradCertUrl: 'https://placehold.co/800x600?text=Tsinghua+PhD+Grad' }], certs: [{ name: '注册电气工程师', level: '执业', authority: '人社', number: 'DG-001', validity: '2028', fileUrl: 'https://placehold.co/600x800?text=Electrical+Cert' }], projects: [{ time: '2021', projectName: '±800kV特高压运维项目', role: '总监', client: '国网', contact: '王主任', phone: '010...', serviceType: '运维' }] },
-    { id: 's-li-ming', name: '李明', age: 38, education: '硕士', title: '高级架构师', proposedPosition: '架构负责人', years: 15, similarYears: 12, school: '西安交大', major: '软件工程', gradDate: '2012', currentLoad: 0.3, educations: [{ level: '硕士', school: '西安交通大学', major: '软件工程', gradDate: '2012', gradCertUrl: 'https://placehold.co/800x600?text=XJTU+Master+Grad' }], certs: [{ name: 'AWS 解决方案架构师认证', level: '专家级', authority: 'Amazon', number: 'AWS-SA-123', validity: '2025-10', fileUrl: 'https://placehold.co/600x800?text=AWS+Arch+Cert' }, { name: '系统分析师', level: '高级', authority: '工信部', number: 'SA-999', validity: '永久', fileUrl: '' }], projects: [{ time: '2023', projectName: '国网新源数字化审计平台', role: '架构师', client: '新源', contact: '李工', phone: '138...', serviceType: '开发' }] }
+    { id: 's-li-ming', name: '李明', age: 38, education: '硕士', title: '高级架构师', proposedPosition: '架构负责人', years: 15, similarYears: 12, school: '西安交大', major: '软件工程', gradDate: '2012', currentLoad: 0.3, educations: [{ level: '硕士', school: '西安交通大学', major: '软件工程', gradDate: '2012', gradCertUrl: 'https://placehold.co/800x600?text=XJTU+Master+Grad' }], certs: [{ name: 'AWS 解决方案架构师认证', level: '专家级', authority: 'Amazon', number: 'AWS-SA-123', validity: '2025-10', fileUrl: 'https://placehold.co/600x800?text=AWS+Arch+Cert' }, { name: '系统分析师', level: '高级', authority: '工信部', number: 'SA-999', validity: '永久', fileUrl: '' }], projects: [{ time: '2023', projectName: '国网新源数字化审计平台', role: '架构师', client: '新源', contact: '李工', phone: '138...', serviceType: '开发' }] },
+    { id: 's-wang-fang', name: '王芳', age: 35, education: '硕士', title: '高级工程师', proposedPosition: '项目经理', years: 12, similarYears: 10, school: '华中科技大学', major: '电气工程', gradDate: '2014', currentLoad: 0.5, educations: [{ level: '硕士', school: '华中科技大学', major: '电气工程及其自动化', gradDate: '2014', gradCertUrl: 'https://placehold.co/800x600?text=HUST+Grad', degreeCertUrl: '' }], certs: [{ name: '注册咨询工程师', level: '执业', authority: '国家发改委', number: 'ZX-20140321', validity: '2026', fileUrl: '' }], projects: [{ time: '2023', projectName: '广东电网配网智能化改造', role: '项目经理', client: '广东电网', contact: '林总', phone: '139...', serviceType: '工程管理' }] },
+    { id: 's-chen-bo', name: '陈博', age: 42, education: '本科', title: '高级工程师', proposedPosition: '运维专家', years: 19, similarYears: 16, school: '武汉大学', major: '计算机科学', gradDate: '2006', currentLoad: 0.7, educations: [{ level: '本科', school: '武汉大学', major: '计算机科学与技术', gradDate: '2006', gradCertUrl: 'https://placehold.co/800x600?text=WHU+Grad', degreeCertUrl: '' }], certs: [{ name: 'CISSP信息安全认证', level: '国际', authority: 'ISC²', number: 'CISSP-88321', validity: '2026', fileUrl: '' }], projects: [{ time: '2022', projectName: '国网信息安全等保三级评估', role: '安全顾问', client: '国网', contact: '赵处长', phone: '010...', serviceType: '安全评估' }] },
+    { id: 's-liu-yang', name: '刘洋', age: 33, education: '硕士', title: '工程师', proposedPosition: '数据分析师', years: 9, similarYears: 7, school: '浙江大学', major: '数据科学', gradDate: '2017', currentLoad: 0.2, educations: [{ level: '硕士', school: '浙江大学', major: '数据科学与大数据技术', gradDate: '2017', gradCertUrl: 'https://placehold.co/800x600?text=ZJU+Grad', degreeCertUrl: '' }], certs: [{ name: '大数据分析师', level: '中级', authority: '工信部', number: 'BD-2017-456', validity: '永久', fileUrl: '' }], projects: [{ time: '2024', projectName: '南网电力数据治理平台', role: '数据架构师', client: '南方电网', contact: '吴经理', phone: '020...', serviceType: '数据治理' }] },
+    { id: 's-sun-lei', name: '孙磊', age: 48, education: '本科', title: '教授级高级工程师', proposedPosition: '首席顾问', years: 25, similarYears: 20, school: '北京大学', major: '物理', gradDate: '2000', currentLoad: 0.3, educations: [{ level: '本科', school: '北京大学', major: '物理学', gradDate: '2000', gradCertUrl: 'https://placehold.co/800x600?text=PKU+Grad', degreeCertUrl: '' }], certs: [{ name: '电力行业职业资格证', level: '正高级', authority: '中国电机工程学会', number: 'CSEE-001', validity: '永久', fileUrl: '' }], projects: [{ time: '2020', projectName: '国家电网碳中和战略规划', role: '首席顾问', client: '国家电网', contact: '张副总', phone: '010...', serviceType: '战略咨询' }] },
+    { id: 's-zhao-xin', name: '赵鑫', age: 30, education: '硕士', title: '工程师', proposedPosition: '前端开发', years: 7, similarYears: 5, school: '同济大学', major: '软件工程', gradDate: '2019', currentLoad: 0.4, educations: [{ level: '硕士', school: '同济大学', major: '软件工程', gradDate: '2019', gradCertUrl: 'https://placehold.co/800x600?text=TJU+Grad', degreeCertUrl: '' }], certs: [], projects: [{ time: '2023', projectName: '电力营销系统前端重构', role: '前端负责人', client: '华东电力', contact: '方主管', phone: '021...', serviceType: '软件开发' }] },
+    { id: 's-wu-jing', name: '吴静', age: 37, education: '博士', title: '副研究员', proposedPosition: '研究顾问', years: 13, similarYears: 10, school: '上海交通大学', major: '电力经济', gradDate: '2013', currentLoad: 0.5, educations: [{ level: '博士', school: '上海交通大学', major: '电力经济与政策', gradDate: '2013', gradCertUrl: 'https://placehold.co/800x600?text=SJTU+PhD+Grad', degreeCertUrl: '' }], certs: [{ name: '经济师', level: '高级', authority: '人社部', number: 'ECON-2013-789', validity: '永久', fileUrl: '' }], projects: [{ time: '2023', projectName: '电力市场化改革政策研究', role: '课题负责人', client: '国家能源局', contact: '刘司长', phone: '010...', serviceType: '政策研究' }] },
+    { id: 's-guo-peng', name: '郭鹏', age: 44, education: '本科', title: '高级工程师', proposedPosition: '变电专家', years: 21, similarYears: 18, school: '西南交通大学', major: '电气工程', gradDate: '2004', currentLoad: 0.8, educations: [{ level: '本科', school: '西南交通大学', major: '电气工程及其自动化', gradDate: '2004', gradCertUrl: 'https://placehold.co/800x600?text=SWJTU+Grad', degreeCertUrl: '' }], certs: [{ name: '注册电气工程师（供配电）', level: '执业', authority: '人社部', number: 'GP-2004-012', validity: '2027', fileUrl: '' }], projects: [{ time: '2022', projectName: '重庆电网500kV变电站改扩建', role: '总工程师', client: '重庆电力', contact: '周经理', phone: '023...', serviceType: 'EPC' }] },
+    { id: 's-tang-min', name: '唐敏', age: 31, education: '硕士', title: '工程师', proposedPosition: '文档工程师', years: 8, similarYears: 6, school: '北京邮电大学', major: '信息管理', gradDate: '2018', currentLoad: 0.3, educations: [{ level: '硕士', school: '北京邮电大学', major: '信息管理与信息系统', gradDate: '2018', gradCertUrl: 'https://placehold.co/800x600?text=BUPT+Grad', degreeCertUrl: '' }], certs: [{ name: '档案管理师', level: '中级', authority: '国家档案局', number: 'DA-2018-234', validity: '永久', fileUrl: '' }], projects: [{ time: '2024', projectName: '国网技术标书规范化整理', role: '文档负责人', client: '国家电网', contact: '钱主任', phone: '010...', serviceType: '文档管理' }] },
+    { id: 's-he-chao', name: '何超', age: 39, education: '硕士', title: '高级工程师', proposedPosition: '通信专家', years: 16, similarYears: 13, school: '电子科技大学', major: '通信工程', gradDate: '2010', currentLoad: 0.6, educations: [{ level: '硕士', school: '电子科技大学', major: '通信与信息系统', gradDate: '2010', gradCertUrl: 'https://placehold.co/800x600?text=UESTC+Grad', degreeCertUrl: '' }], certs: [{ name: '高级通信工程师', level: '高级', authority: '工信部', number: 'COMM-2010-567', validity: '永久', fileUrl: '' }], projects: [{ time: '2023', projectName: '贵州电网骨干通信网升级', role: '通信负责人', client: '贵州电网', contact: '陈总工', phone: '0851...', serviceType: '通信工程' }] },
+    { id: 's-feng-yun', name: '冯云', age: 36, education: '本科', title: '高级工程师', proposedPosition: '后勤保障', years: 13, similarYears: 11, school: '南京师范大学', major: '管理学', gradDate: '2012', currentLoad: 0.4, educations: [{ level: '本科', school: '南京师范大学', major: '工商管理', gradDate: '2012', gradCertUrl: 'https://placehold.co/800x600?text=NJNU+Grad', degreeCertUrl: '' }], certs: [{ name: '项目管理专业人士（PMP）', level: '国际', authority: 'PMI', number: 'PMP-56789', validity: '2028', fileUrl: '' }], projects: [{ time: '2022', projectName: '国网山东后勤服务综合项目', role: '后勤总协调', client: '国网山东', contact: '杨主任', phone: '0531...', serviceType: '后勤管理' }] },
+    { id: 's-jiang-hao', name: '蒋浩', age: 43, education: '博士', title: '研究员', proposedPosition: '技术咨询', years: 20, similarYears: 17, school: '哈尔滨工业大学', major: '控制工程', gradDate: '2006', currentLoad: 0.5, educations: [{ level: '博士', school: '哈尔滨工业大学', major: '控制理论与控制工程', gradDate: '2006', gradCertUrl: 'https://placehold.co/800x600?text=HIT+PhD+Grad', degreeCertUrl: '' }], certs: [{ name: '控制工程师', level: '高级', authority: '中国自动化学会', number: 'CAA-2006-098', validity: '永久', fileUrl: '' }], projects: [{ time: '2021', projectName: '西北电网调度自动化系统研究', role: '研究员', client: '西北电网', contact: '马总', phone: '029...', serviceType: '技术研究' }] },
+    { id: 's-lin-rui', name: '林瑞', age: 29, education: '本科', title: '助理工程师', proposedPosition: '技术支持', years: 5, similarYears: 4, school: '厦门大学', major: '电子信息', gradDate: '2021', currentLoad: 0.2, educations: [{ level: '本科', school: '厦门大学', major: '电子信息工程', gradDate: '2021', gradCertUrl: 'https://placehold.co/800x600?text=XMU+Grad', degreeCertUrl: '' }], certs: [], projects: [{ time: '2024', projectName: '福建电力计量系统运维', role: '技术支持工程师', client: '国网福建', contact: '郑经理', phone: '0591...', serviceType: '技术支持' }] },
+    { id: 's-xu-qiang', name: '徐强', age: 46, education: '硕士', title: '高级经济师', proposedPosition: '商务经理', years: 23, similarYears: 19, school: '对外经济贸易大学', major: '国际贸易', gradDate: '2002', currentLoad: 0.7, educations: [{ level: '硕士', school: '对外经济贸易大学', major: '国际贸易学', gradDate: '2002', gradCertUrl: 'https://placehold.co/800x600?text=UIBE+Grad', degreeCertUrl: '' }], certs: [{ name: '高级经济师', level: '高级', authority: '人社部', number: 'ECON-H-2002-321', validity: '永久', fileUrl: '' }], projects: [{ time: '2023', projectName: '电力国际合作项目商务谈判', role: '商务总监', client: '华电集团', contact: '孟副总', phone: '010...', serviceType: '商务管理' }] },
   ];
 
   const fullProjectPool: ProjectExperience[] = [
-    { id: 'p1', contractYear: '2021', index: 1, projectType: '营销服务', projectName: '海口局2021客服宣传项目', keywords: ['宣传', '营商环境'], amount: '61.0', signingDate: '2021-10', endDate: '2021-12', clientName: '海口局', clientAddress: '海口', location: '海南', quality: '优', leader: '黄石亮', leaderExperience: '总负责', content: '设计海报、编制故事。', contractScanUrls: ['https://placehold.co/800x1200?text=P1+Contract'], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '已完成', extendedKeywords: [], members: '策划组', memberExperience: '', phone: '186...', contact: '张主任', remarks: '' },
-    { id: 'p2', contractYear: '2022', index: 2, projectType: '变电类', projectName: '广州局220kV天河站数字化改造', keywords: ['变电', 'EPC', '数字化'], amount: '1280.5', signingDate: '2022-03', endDate: '2022-12', clientName: '广州局', clientAddress: '广州', location: '广东', quality: '优', leader: '王志强', leaderExperience: '项目经理', content: '全站数字化升级调试。', contractScanUrls: ['https://placehold.co/800x1200?text=P2+Contract'], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '已完成', extendedKeywords: [], members: '技术组', memberExperience: '', phone: '139...', contact: '陈经理', remarks: '' },
-    { id: 'p3', contractYear: '2023', index: 3, projectType: '技术服务类', projectName: '深圳局2023无人机巡检算法服务', keywords: ['无人机', 'AI', '算法'], amount: '185.0', signingDate: '2023-01', endDate: '2023-12', clientName: '深圳局', clientAddress: '深圳', location: '广东', quality: '合格', leader: '刘思源', leaderExperience: '技术负责人', content: '开发缺陷识别AI模型。', contractScanUrls: ['https://placehold.co/800x1200?text=P3+Contract'], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '已完成', extendedKeywords: [], members: '算法组', memberExperience: '', phone: '137...', contact: '林主管', remarks: '' }
+    { id: 'p1', contractYear: '2021', index: 1, projectType: '营销服务', projectName: '海口局2021客服宣传项目', keywords: ['宣传', '营商环境'], amount: '61.0', signingDate: '2021-10', endDate: '2021-12', clientName: '海口局', clientAddress: '海口', location: '海南', quality: '优', leader: '黄石亮', leaderExperience: '总负责', content: '设计海报、编制故事。', contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '已完成', extendedKeywords: [], members: '5/3', memberExperience: '', phone: '186...', contact: '张主任', remarks: '' },
+    { id: 'p2', contractYear: '2022', index: 2, projectType: '变电类', projectName: '广州局220kV天河站数字化改造', keywords: ['变电', 'EPC', '数字化'], amount: '1280.5', signingDate: '2022-03', endDate: '2022-12', clientName: '广州局', clientAddress: '广州', location: '广东', quality: '优', leader: '王志强', leaderExperience: '项目经理', content: '全站数字化升级调试。', contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '已完成', extendedKeywords: [], members: '18/12', memberExperience: '', phone: '139...', contact: '陈经理', remarks: '' },
+    { id: 'p3', contractYear: '2023', index: 3, projectType: '技术服务类', projectName: '深圳局2023无人机巡检算法服务', keywords: ['无人机', 'AI', '算法'], amount: '185.0', signingDate: '2023-01', endDate: '2023-12', clientName: '深圳局', clientAddress: '深圳', location: '广东', quality: '合格', leader: '刘思源', leaderExperience: '技术负责人', content: '开发缺陷识别AI模型。', contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '已完成', extendedKeywords: [], members: '8/6', memberExperience: '', phone: '137...', contact: '林主管', remarks: '' },
+    { id: 'p4', contractYear: '2022', index: 4, projectType: '线路类', projectName: '国网浙江500kV甬舟线路改造工程', keywords: ['线路', '500kV', '改造'], amount: '3450.0', signingDate: '2022-05', endDate: '2023-06', clientName: '国网浙江电力', clientAddress: '杭州', location: '浙江', quality: '优', leader: '陈国栋', leaderExperience: '总工程师', content: '500kV架空线路新建及改造施工。', contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '已完成', extendedKeywords: [], members: '35/25', memberExperience: '', phone: '135...', contact: '王总监', remarks: '' },
+    { id: 'p5', contractYear: '2023', index: 5, projectType: '信通类', projectName: '南网广东配网自动化系统升级项目', keywords: ['配网', '自动化', 'SCADA'], amount: '876.0', signingDate: '2023-04', endDate: '2023-11', clientName: '广东电网', clientAddress: '广州', location: '广东', quality: '优', leader: '李明华', leaderExperience: '系统架构师', content: '配电自动化终端改造与主站系统升级。', contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '已完成', extendedKeywords: [], members: '14/10', memberExperience: '', phone: '138...', contact: '赵主任', remarks: '' },
+    { id: 'p6', contractYear: '2021', index: 6, projectType: '变电类', projectName: '云南电网110kV西双版纳变电站新建', keywords: ['变电站', '新建', '110kV'], amount: '2100.0', signingDate: '2021-06', endDate: '2022-08', clientName: '云南电网', clientAddress: '西双版纳', location: '云南', quality: '合格', leader: '张伟', leaderExperience: '项目经理', content: '110kV变电站土建与设备安装调试。', contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '已完成', extendedKeywords: [], members: '28/20', memberExperience: '', phone: '133...', contact: '刘经理', remarks: '' },
+    { id: 'p7', contractYear: '2024', index: 7, projectType: '技术服务类', projectName: '国网湖北电力碳排放监测平台建设', keywords: ['碳排放', '监测', '平台'], amount: '320.0', signingDate: '2024-01', endDate: '2024-09', clientName: '国网湖北电力', clientAddress: '武汉', location: '湖北', quality: '优', leader: '孙丽丽', leaderExperience: '产品负责人', content: '建设电力行业碳排放数据采集与分析平台。', contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '进行中', extendedKeywords: [], members: '10/7', memberExperience: '', phone: '136...', contact: '杨总', remarks: '' },
+    { id: 'p8', contractYear: '2023', index: 8, projectType: '综合类', projectName: '国网四川2023年配网物资集中采购服务', keywords: ['物资', '采购', '配网'], amount: '540.0', signingDate: '2023-07', endDate: '2023-12', clientName: '国网四川电力', clientAddress: '成都', location: '四川', quality: '合格', leader: '周强', leaderExperience: '商务负责人', content: '配网物资框架协议采购代理服务。', contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '已完成', extendedKeywords: [], members: '6/4', memberExperience: '', phone: '181...', contact: '钱采购', remarks: '' },
+    { id: 'p9', contractYear: '2024', index: 9, projectType: '线路类', projectName: '国网江苏电力2024年城区电缆通道工程', keywords: ['电缆', '城区', '通道'], amount: '1650.0', signingDate: '2024-03', endDate: '2024-12', clientName: '国网江苏电力', clientAddress: '南京', location: '江苏', quality: '优', leader: '吴建国', leaderExperience: '总工', content: '城区地下电缆管道新建与改造。', contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '进行中', extendedKeywords: [], members: '22/16', memberExperience: '', phone: '182...', contact: '韩总监', remarks: '' },
+    { id: 'p10', contractYear: '2022', index: 10, projectType: '信通类', projectName: '贵州电网数字孪生变电站试点项目', keywords: ['数字孪生', '变电站', '试点'], amount: '420.0', signingDate: '2022-09', endDate: '2023-05', clientName: '贵州电网', clientAddress: '贵阳', location: '贵州', quality: '优', leader: '冯小刚', leaderExperience: '技术总监', content: '构建220kV数字孪生变电站三维模型与联动系统。', contractScanUrls: [], invoiceUrls: [], invoiceVerifyUrls: [], contractStatus: '已完成', extendedKeywords: [], members: '9/6', memberExperience: '', phone: '189...', contact: '程副总', remarks: '' },
   ];
 
   const [phase, setPhase] = useState<'hub' | 'task' | 'team_preview' | 'exp_preview'>('hub');
@@ -268,6 +290,12 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
   // 新增：技术文件中的项目负责人 ID
   const [projectLeaderId, setProjectLeaderId] = useState<string | null>(null);
 
+  // 本项目任职类型与成员任职映射
+  const [projectRoleTypes, setProjectRoleTypes] = useState<string[]>(['技术咨询顾问', '文档资料管理及后勤辅助', '后台协助技术支持']);
+  const [memberProjectRoles, setMemberProjectRoles] = useState<Record<string, string>>({});
+  const [newRoleTypeInput, setNewRoleTypeInput] = useState('');
+  const [addingRoleForId, setAddingRoleForId] = useState<string | null>(null);
+
   // 深度详情模态框状态
   const [detailPerson, setDetailPerson] = useState<Personnel | null>(null);
   const [detailProject, setDetailProject] = useState<ProjectExperience | null>(null);
@@ -275,6 +303,10 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
   // 搜索与判定状态
   const [personnelSearch, setPersonnelSearch] = useState('');
   const [projectSearch, setProjectSearch] = useState('');
+  const [poolPage, setPoolPage] = useState(1);
+  const POOL_PAGE_SIZE = 8;
+  const [personnelPage, setPersonnelPage] = useState(1);
+  const PERSONNEL_PAGE_SIZE = 8;
   const [isAiRecommending, setIsAiRecommending] = useState(false);
   const [aiRecommendations, setAiRecommendations] = useState<any[]>([]);
   const [expAiRecommendations, setExpAiRecommendations] = useState<any[]>([]);
@@ -345,16 +377,173 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
     }
   }, [currentTask]);
 
-  // 关键增强：为预览模式生成的已排序成员列表（负责人排在第一位）
-  const previewPersonnelList = useMemo(() => {
-    if (!projectLeaderId) return selectedPersonnel;
-    const sorted = [...selectedPersonnel].sort((a, b) => {
-      if (a.id === projectLeaderId) return -1;
-      if (b.id === projectLeaderId) return 1;
-      return 0;
-    });
-    return sorted;
-  }, [selectedPersonnel, projectLeaderId]);
+  // 预览直接跟随 selectedPersonnel 顺序（顺序由用户手动排列或设负责人时自动置顶管理）
+  const previewPersonnelList = selectedPersonnel;
+
+  // 业绩总览表组件
+  const ProjectSummaryTable: React.FC = () => (
+    <div className="relative bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] text-left font-serif flex flex-col shrink-0 overflow-hidden p-[20mm]" style={{ width: '297mm', minHeight: 'auto', border: '1px solid #e2e8f0' }}>
+      <div className="absolute top-[10mm] right-[15mm] px-3 py-1 border border-slate-400 text-[8pt] text-slate-400 italic font-sans uppercase tracking-widest">Archive Copy - GridBid AI</div>
+      <h2 className="text-[14pt] font-bold text-center mb-[8mm] tracking-[3pt]">项目业绩总览表</h2>
+      <table className="w-full border-collapse text-[8.5pt]" style={{ tableLayout: 'fixed' }}>
+        <colgroup>
+          <col style={{ width: '13%' }} />
+          <col style={{ width: '16%' }} />
+          <col style={{ width: '9%' }} />
+          <col style={{ width: '12%' }} />
+          <col style={{ width: '13%' }} />
+          <col style={{ width: '10%' }} />
+          <col style={{ width: '13%' }} />
+          <col style={{ width: '14%' }} />
+        </colgroup>
+        <thead>
+          <tr style={{ backgroundColor: '#dbeafe' }}>
+            <th className="border border-slate-700 px-2 py-2 text-center font-bold leading-snug">项目法人<br/>（服务对象单位名称）</th>
+            <th className="border border-slate-700 px-2 py-2 text-center font-bold">项目名称</th>
+            <th className="border border-slate-700 px-2 py-2 text-center font-bold">项目规模</th>
+            <th className="border border-slate-700 px-2 py-2 text-center font-bold">服务范围</th>
+            <th className="border border-slate-700 px-2 py-2 text-center font-bold leading-snug">服务期间<br/>年·月 至 年·月</th>
+            <th className="border border-slate-700 px-2 py-2 text-center font-bold">项目目前进度</th>
+            <th className="border border-slate-700 px-2 py-2 text-center font-bold leading-snug">服务人员人数<br/>（高峰/平均）</th>
+            <th className="border border-slate-700 px-2 py-2 text-center font-bold leading-snug">建设单位联系人及电话<br/>（服务对象联系信息）</th>
+          </tr>
+        </thead>
+        <tbody>
+          {selectedProjects.map((p) => (
+            <tr key={p.id} className="align-middle">
+              <td className="border border-slate-700 px-2 py-2 text-center align-middle leading-snug">{p.clientName}</td>
+              <td className="border border-slate-700 px-2 py-2 align-middle leading-snug">{p.projectName}</td>
+              <td className="border border-slate-700 px-2 py-2 text-center align-middle">{p.amount ? `${p.amount}万元` : '—'}</td>
+              <td className="border border-slate-700 px-2 py-2 align-middle leading-snug">{p.projectType}</td>
+              <td className="border border-slate-700 px-2 py-2 text-center align-middle leading-snug">{p.signingDate} 至 {p.endDate}</td>
+              <td className="border border-slate-700 px-2 py-2 text-center align-middle">{p.contractStatus || '—'}</td>
+              <td className="border border-slate-700 px-2 py-2 text-center align-middle">{(fullProjectPool.find(fp => fp.id === p.id)?.members || p.members) || '—'}</td>
+              <td className="border border-slate-700 px-2 py-2 text-center align-middle leading-snug">{p.contact}{p.phone ? `\n${p.phone}` : ''}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  // 拟委任的主要人员汇总表组件
+  const TeamSummaryTable: React.FC = () => {
+    // 负责人置首，其余按原顺序
+    const leader = selectedPersonnel.find(p => p.id === projectLeaderId);
+    const others = selectedPersonnel.filter(p => p.id !== projectLeaderId);
+    const ordered = leader ? [leader, ...others] : [...others];
+    return (
+      <div className="relative bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] text-left font-serif flex flex-col shrink-0 overflow-hidden p-[20mm]" style={{ width: '297mm', minHeight: 'auto', border: '1px solid #e2e8f0' }}>
+        <div className="absolute top-[10mm] right-[15mm] px-3 py-1 border border-slate-400 text-[8pt] text-slate-400 italic font-sans uppercase tracking-widest">Archive Copy - GridBid AI</div>
+        <h2 className="text-[14pt] font-bold text-center mb-[8mm] tracking-[3pt]">拟委任的主要人员汇总表</h2>
+        <table className="w-full border-collapse text-[9pt]" style={{ tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '6%' }} />
+            <col style={{ width: '14%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '14%' }} />
+            <col style={{ width: '12%' }} />
+            <col style={{ width: '18%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '6%' }} />
+          </colgroup>
+          <thead>
+            <tr>
+              <th rowSpan={2} className="border border-slate-800 px-2 py-2 text-center font-bold bg-slate-50 align-middle">序号</th>
+              <th rowSpan={2} className="border border-slate-800 px-2 py-2 text-center font-bold bg-slate-50 align-middle">本项目任职</th>
+              <th rowSpan={2} className="border border-slate-800 px-2 py-2 text-center font-bold bg-slate-50 align-middle">姓名</th>
+              <th rowSpan={2} className="border border-slate-800 px-2 py-2 text-center font-bold bg-slate-50 align-middle">职称</th>
+              <th rowSpan={2} className="border border-slate-800 px-2 py-2 text-center font-bold bg-slate-50 align-middle">专业</th>
+              <th colSpan={3} className="border border-slate-800 px-2 py-2 text-center font-bold bg-slate-50">执业或职业资格证明</th>
+              <th rowSpan={2} className="border border-slate-800 px-2 py-2 text-center font-bold bg-slate-50 align-middle">备注</th>
+            </tr>
+            <tr>
+              <th className="border border-slate-800 px-2 py-2 text-center font-bold bg-slate-50">证书名称</th>
+              <th className="border border-slate-800 px-2 py-2 text-center font-bold bg-slate-50">级别</th>
+              <th className="border border-slate-800 px-2 py-2 text-center font-bold bg-slate-50">证号</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(() => {
+              // 预计算每个人的 role 和 certCount
+              const rows = ordered.map((p, idx) => ({
+                p,
+                idx,
+                role: p.id === projectLeaderId ? '项目负责人' : (memberProjectRoles[p.id] || '—'),
+                certs: p.certs && p.certs.length > 0 ? p.certs : [{ name: '—', level: '—', number: '—' }],
+              }));
+              // 计算每个人对应的 role 合并信息：isRoleGroupStart + roleRowSpan
+              const roleInfo: { isStart: boolean; span: number }[] = rows.map(() => ({ isStart: false, span: 0 }));
+              let i = 0;
+              while (i < rows.length) {
+                const currentRole = rows[i].role;
+                let j = i;
+                let totalCertRows = 0;
+                while (j < rows.length && rows[j].role === currentRole) {
+                  totalCertRows += rows[j].certs.length;
+                  j++;
+                }
+                roleInfo[i] = { isStart: true, span: totalCertRows };
+                for (let k = i + 1; k < j; k++) roleInfo[k] = { isStart: false, span: 0 };
+                i = j;
+              }
+              return rows.map(({ p, idx, role, certs }, pi) => (
+                certs.map((cert, ci) => (
+                  <tr key={`${p.id}-${ci}`} className="align-middle">
+                    {ci === 0 && <td rowSpan={certs.length} className="border border-slate-800 px-2 py-2 text-center align-middle">{idx + 1}</td>}
+                    {ci === 0 && roleInfo[pi].isStart && (
+                      <td rowSpan={roleInfo[pi].span} className="border border-slate-800 px-2 py-2 text-center align-middle leading-snug">{role}</td>
+                    )}
+                    {ci === 0 && <td rowSpan={certs.length} className="border border-slate-800 px-2 py-2 text-center font-bold align-middle">{p.name}</td>}
+                    {ci === 0 && <td rowSpan={certs.length} className="border border-slate-800 px-2 py-2 text-center align-middle leading-snug">{p.title}</td>}
+                    {ci === 0 && <td rowSpan={certs.length} className="border border-slate-800 px-2 py-2 text-center align-middle leading-snug">{p.major}</td>}
+                    <td className="border border-slate-800 px-2 py-2 text-center align-middle leading-snug">{cert.name}</td>
+                    <td className="border border-slate-800 px-2 py-2 text-center align-middle">{cert.level}</td>
+                    <td className="border border-slate-800 px-2 py-2 text-center align-middle">{cert.number}</td>
+                    {ci === 0 && <td rowSpan={certs.length} className="border border-slate-800 px-2 py-2 text-center align-middle"></td>}
+                  </tr>
+                ))
+              ));
+            })()}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  const moveProject = (idx: number, dir: -1 | 1) => {
+    const target = idx + dir;
+    if (target < 0 || target >= selectedProjects.length) return;
+    const next = [...selectedProjects];
+    [next[idx], next[target]] = [next[target], next[idx]];
+    setSelectedProjects(next);
+  };
+
+  const moveMember = (idx: number, dir: -1 | 1) => {
+    const target = idx + dir;
+    if (target < 0 || target >= selectedPersonnel.length) return;
+    const next = [...selectedPersonnel];
+    [next[idx], next[target]] = [next[target], next[idx]];
+    setSelectedPersonnel(next);
+  };
+
+  const handleSetLeader = (personId: string) => {
+    const isLeader = projectLeaderId === personId;
+    if (isLeader) {
+      setProjectLeaderId(null);
+    } else {
+      setProjectLeaderId(personId);
+      // 将负责人移到第一位
+      setSelectedPersonnel(prev => {
+        const idx = prev.findIndex(p => p.id === personId);
+        if (idx <= 0) return prev;
+        const next = [...prev];
+        const [leader] = next.splice(idx, 1);
+        return [leader, ...next];
+      });
+    }
+  };
 
   const markTaskCompleted = (taskId: 'team' | 'exp' | 'content') => {
     if (taskId === 'team' && selectedPersonnel.length > 0 && !projectLeaderId) {
@@ -540,10 +729,6 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
         <div className="flex items-center space-x-8 text-left min-w-0 flex-1">
           <div className="p-3.5 rounded-2xl bg-slate-900 text-white shadow-lg shrink-0"><Layers size={26} /></div>
           <div className="min-w-0">
-            <div className="flex items-center space-x-3 mb-2">
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] italic leading-none">Bidding Authoring Workshop V3.1</h3>
-              <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[9px] font-black rounded border border-blue-100 uppercase italic">Active Engine</span>
-            </div>
             <div className="flex items-center space-x-4 min-w-0">
                <h2 className="text-xl font-black text-slate-900 truncate tracking-tight leading-none uppercase italic" title={currentTask?.title}>
                  {currentTask?.title || "未选择投标项目"}
@@ -566,6 +751,7 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
              </div>
            )}
            {phase !== 'hub' && <button onClick={() => setPhase('hub')} className="text-xs font-black text-slate-400 flex items-center hover:text-blue-600 px-4 py-2 uppercase tracking-widest transition-colors"><ChevronLeft size={18} className="mr-2" /> 返回枢纽</button>}
+           {onBack && <button onClick={onBack} className="text-xs font-black text-slate-400 flex items-center hover:text-slate-900 px-4 py-2 border border-slate-200 rounded-xl uppercase tracking-widest transition-all hover:border-slate-400"><ChevronLeft size={18} className="mr-2" /> 投标计划</button>}
         </div>
       </header>
 
@@ -626,9 +812,14 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
              <div className="px-12 py-8 border-b border-slate-100 bg-slate-50 flex items-center justify-between shrink-0 text-left">
                 <div className="flex items-center space-x-6 text-left">
                    <div className="w-14 h-14 text-white rounded-2xl flex items-center justify-center font-black shadow-lg bg-indigo-600 shadow-indigo-100"><Users size={28}/></div>
-                   <div><h3 className="text-2xl font-black text-slate-800 tracking-tighter uppercase italic leading-none">拟定项目实施团队成员名单</h3><p className="text-xs text-slate-400 font-bold uppercase tracking-widest italic mt-2">Expert matching & Team Composition Factory</p></div>
+                   <div><h3 className="text-2xl font-black text-slate-800 tracking-tighter uppercase italic leading-none">拟定项目实施团队成员名单</h3></div>
                 </div>
-                <div className="flex space-x-4"><button onClick={() => setPhase('team_preview')} className="px-8 py-4 bg-slate-100 text-slate-600 rounded-[24px] text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all border border-slate-200 shadow-sm">资历全案 A4 预览</button>{canEditTeam && (<button onClick={() => markTaskCompleted('team')} className="px-10 py-4 bg-emerald-600 text-white rounded-[24px] text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl"><CheckCircle2 size={18} className="mr-3 inline" /> 确认并锁定环节</button>)}</div>
+                <div className="flex space-x-4"><button onClick={() => {
+                  if (selectedPersonnel.length === 0) { alert('请先指派至少一名团队成员。'); return; }
+                  const missing = selectedPersonnel.filter(p => p.id !== projectLeaderId && !memberProjectRoles[p.id]);
+                  if (missing.length > 0) { alert(`以下成员尚未指定"本项目任职"，请全部指定后再生成预览：\n${missing.map(p => p.name).join('、')}`); return; }
+                  setPhase('team_preview');
+                }} className="px-8 py-4 bg-slate-100 text-slate-600 rounded-[24px] text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all border border-slate-200 shadow-sm">项目团队预览</button>{canEditTeam && (<button onClick={() => markTaskCompleted('team')} className="px-10 py-4 bg-emerald-600 text-white rounded-[24px] text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl"><CheckCircle2 size={18} className="mr-3 inline" /> 确认并锁定环节</button>)}</div>
              </div>
               <div className="flex bg-white text-left relative w-full overflow-hidden">
                 <div className="flex-1 flex flex-col border-r border-slate-100 p-10 space-y-10 min-w-0 w-0 overflow-hidden">
@@ -713,7 +904,7 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
                    <section className="text-left pb-12">
                       <div className="flex items-center justify-between mb-8 text-left">
                          <div className="flex items-center italic text-left"><SearchCode size={28} className="text-slate-400 mr-3" /><h4 className="text-sm font-black text-slate-900 uppercase tracking-wider">全库专家人工检索轨道</h4></div>
-                         <div className="relative group"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={16} /><input disabled={!canEditTeam} value={personnelSearch} onChange={e => setPersonnelSearch(e.target.value)} placeholder="检索姓名/院校/岗位..." className="pl-12 pr-6 py-3.5 bg-slate-100 border border-slate-200 rounded-2xl outline-none text-sm font-bold text-slate-700 w-80 focus:bg-white focus:border-indigo-500 transition-all shadow-inner" /></div>
+                         <div className="relative group"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={16} /><input disabled={!canEditTeam} value={personnelSearch} onChange={e => { setPersonnelSearch(e.target.value); setPersonnelPage(1); }} placeholder="检索姓名/院校/岗位..." className="pl-12 pr-6 py-3.5 bg-slate-100 border border-slate-200 rounded-2xl outline-none text-sm font-bold text-slate-700 w-80 focus:bg-white focus:border-indigo-500 transition-all shadow-inner" /></div>
                       </div>
                       <div className="w-full overflow-x-auto border border-slate-200 rounded-2xl bg-white shadow-sm custom-scrollbar-main">
                         <table className="w-full min-w-[1290px] text-left border-collapse table-fixed">
@@ -730,52 +921,99 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
-                            {fullPersonnelPool.filter(p => p.name.includes(personnelSearch)).map(p => (
-                              <tr key={p.id} className="hover:bg-slate-50 transition-colors group">
-                                <td className="px-4 py-4 border-r border-slate-100/60 sticky left-0 bg-white group-hover:bg-slate-50 z-10">
-                                  <div className="flex items-center justify-center space-x-2">
-                                    <button onClick={() => setDetailPerson(p)} className="p-2 text-slate-400 hover:text-indigo-600 transition-all bg-white rounded-lg border border-slate-200 shadow-sm" title="查看资历">
-                                      <Eye size={14} />
-                                    </button>
-                                    {canEditTeam && (
-                                      <button 
-                                        onClick={() => setSelectedPersonnel(prev => prev.find(i => i.id === p.id) ? prev : [...prev, p])} 
-                                        className="px-4 py-2 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-sm active:scale-95"
-                                      >
-                                        选用
+                            {(() => {
+                              const filtered = fullPersonnelPool.filter(p =>
+                                p.name.includes(personnelSearch) ||
+                                p.title.includes(personnelSearch) ||
+                                p.proposedPosition.includes(personnelSearch) ||
+                                p.school.includes(personnelSearch)
+                              );
+                              const totalPages = Math.ceil(filtered.length / PERSONNEL_PAGE_SIZE);
+                              const paged = filtered.slice((personnelPage - 1) * PERSONNEL_PAGE_SIZE, personnelPage * PERSONNEL_PAGE_SIZE);
+                              return paged.map(p => (
+                                <tr key={p.id} className="hover:bg-slate-50 transition-colors group">
+                                  <td className="px-4 py-4 border-r border-slate-100/60 sticky left-0 bg-white group-hover:bg-slate-50 z-10">
+                                    <div className="flex items-center justify-center space-x-2">
+                                      <button onClick={() => setDetailPerson(p)} className="p-2 text-slate-400 hover:text-indigo-600 transition-all bg-white rounded-lg border border-slate-200 shadow-sm" title="查看资历">
+                                        <Eye size={14} />
                                       </button>
-                                    )}
-                                  </div>
-                                </td>
-                                <td className="px-6 py-6 text-sm font-bold text-slate-900 border-r border-slate-100/60 whitespace-nowrap overflow-hidden sticky left-[150px] bg-white group-hover:bg-slate-50 z-10">
-                                  {p.name}
-                                </td>
-                                <td className="px-6 py-6 text-[11px] font-medium text-slate-500 uppercase border-r border-slate-100/60 whitespace-nowrap overflow-hidden sticky left-[300px] bg-white group-hover:bg-slate-50 z-10">
-                                  {p.title}
-                                </td>
-                                <td className="px-6 py-6 text-[11px] font-medium text-slate-400 border-r border-slate-100/60 whitespace-nowrap overflow-hidden">
-                                  {p.education} · {p.major}
-                                </td>
-                                <td className="px-6 py-6 text-sm font-medium text-slate-600 border-r border-slate-100/60 text-center whitespace-nowrap overflow-hidden">
-                                  {p.years}年
-                                </td>
-                                <td className="px-6 py-6 text-sm font-bold text-indigo-600 border-r border-slate-100/60 text-center whitespace-nowrap overflow-hidden">
-                                  {p.similarYears}年
-                                </td>
-                                <td className="px-6 py-6 text-[11px] font-bold text-indigo-600 uppercase border-r border-slate-100/60 whitespace-nowrap overflow-hidden">
-                                  {p.proposedPosition}
-                                </td>
-                                <td className="px-6 py-6 text-center whitespace-nowrap overflow-hidden">
-                                  <div className="flex items-center justify-center space-x-2">
-                                    <div className={`w-1.5 h-1.5 rounded-full ${p.currentLoad > 80 ? 'bg-red-500' : p.currentLoad > 50 ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                                    <span className="text-[11px] font-bold text-slate-500">{p.currentLoad}%</span>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))}
+                                      {canEditTeam && (
+                                        <button
+                                          onClick={() => setSelectedPersonnel(prev => prev.find(i => i.id === p.id) ? prev : [...prev, p])}
+                                          className="px-4 py-2 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-sm active:scale-95"
+                                        >
+                                          选用
+                                        </button>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-6 text-sm font-bold text-slate-900 border-r border-slate-100/60 whitespace-nowrap overflow-hidden sticky left-[150px] bg-white group-hover:bg-slate-50 z-10">
+                                    {p.name}
+                                  </td>
+                                  <td className="px-6 py-6 text-[11px] font-medium text-slate-500 uppercase border-r border-slate-100/60 whitespace-nowrap overflow-hidden sticky left-[300px] bg-white group-hover:bg-slate-50 z-10">
+                                    {p.title}
+                                  </td>
+                                  <td className="px-6 py-6 text-[11px] font-medium text-slate-400 border-r border-slate-100/60 whitespace-nowrap overflow-hidden">
+                                    {p.education} · {p.major}
+                                  </td>
+                                  <td className="px-6 py-6 text-sm font-medium text-slate-600 border-r border-slate-100/60 text-center whitespace-nowrap overflow-hidden">
+                                    {p.years}年
+                                  </td>
+                                  <td className="px-6 py-6 text-sm font-bold text-indigo-600 border-r border-slate-100/60 text-center whitespace-nowrap overflow-hidden">
+                                    {p.similarYears}年
+                                  </td>
+                                  <td className="px-6 py-6 text-[11px] font-bold text-indigo-600 uppercase border-r border-slate-100/60 whitespace-nowrap overflow-hidden">
+                                    {p.proposedPosition}
+                                  </td>
+                                  <td className="px-6 py-6 text-center whitespace-nowrap overflow-hidden">
+                                    <div className="flex items-center justify-center space-x-2">
+                                      <div className={`w-1.5 h-1.5 rounded-full ${p.currentLoad > 0.8 ? 'bg-red-500' : p.currentLoad > 0.5 ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                                      <span className="text-[11px] font-bold text-slate-500">{(p.currentLoad * 100).toFixed(0)}%</span>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ));
+                            })()}
                           </tbody>
                         </table>
                       </div>
+                      {/* 分页控件 */}
+                      {(() => {
+                        const filtered = fullPersonnelPool.filter(p =>
+                          p.name.includes(personnelSearch) ||
+                          p.title.includes(personnelSearch) ||
+                          p.proposedPosition.includes(personnelSearch) ||
+                          p.school.includes(personnelSearch)
+                        );
+                        const totalPages = Math.ceil(filtered.length / PERSONNEL_PAGE_SIZE);
+                        if (totalPages <= 1) return null;
+                        return (
+                          <div className="flex items-center justify-between mt-4 px-2">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                              共 {filtered.length} 人 · 第 {personnelPage} / {totalPages} 页
+                            </span>
+                            <div className="flex items-center space-x-1">
+                              <button
+                                disabled={personnelPage === 1}
+                                onClick={() => setPersonnelPage(p => p - 1)}
+                                className="w-8 h-8 rounded-xl border border-slate-200 text-slate-500 text-xs font-black hover:border-indigo-500 hover:text-indigo-600 disabled:opacity-30 transition-all"
+                              >‹</button>
+                              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pg => (
+                                <button
+                                  key={pg}
+                                  onClick={() => setPersonnelPage(pg)}
+                                  className={`w-8 h-8 rounded-xl text-xs font-black transition-all ${personnelPage === pg ? 'bg-indigo-600 text-white shadow-md' : 'border border-slate-200 text-slate-500 hover:border-indigo-500 hover:text-indigo-600'}`}
+                                >{pg}</button>
+                              ))}
+                              <button
+                                disabled={personnelPage === totalPages}
+                                onClick={() => setPersonnelPage(p => p + 1)}
+                                className="w-8 h-8 rounded-xl border border-slate-200 text-slate-500 text-xs font-black hover:border-indigo-500 hover:text-indigo-600 disabled:opacity-30 transition-all"
+                              >›</button>
+                            </div>
+                          </div>
+                        );
+                      })()}
                    </section>
                 </div>
                 <div className={`${isSidebarCollapsed ? 'w-0' : 'w-[400px]'} transition-all duration-300 flex flex-col shrink-0 bg-slate-50 border-l border-slate-200 relative`}>
@@ -796,9 +1034,9 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
                             <UserPlus2 size={20} className="text-indigo-400 mr-3" />
                             <h4 className="text-sm font-black uppercase tracking-tighter">标书拟定团队池</h4>
                           </div>
-                          <span className="text-slate-500 text-[10px] font-black italic tracking-widest">{selectedPersonnel.length} / 12 人</span>
+                          <span className="text-slate-500 text-[10px] font-black italic tracking-widest">{selectedPersonnel.length} 人</span>
                       </div>
-                      <div className="space-y-3 pr-2 text-left">
+                      <div className={`space-y-3 pr-2 text-left ${selectedPersonnel.length >= 8 ? 'overflow-y-auto max-h-[480px] custom-scrollbar-dark' : ''}`}>
                           {selectedPersonnel.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center text-slate-600 space-y-4 opacity-50">
                               <Users size={40} strokeWidth={1} />
@@ -808,25 +1046,88 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
                             selectedPersonnel.map((p, idx) => {
                               const isLeader = p.id === projectLeaderId;
                               return (
-                                <div key={idx} className={`p-4 border transition-all rounded-[24px] flex items-center justify-between group text-white text-left animate-in slide-in-from-bottom-4 ${isLeader ? 'bg-indigo-600/20 border-indigo-500/50 shadow-[0_0_20px_rgba(79,70,229,0.3)]' : 'bg-white/5 border-white/5'}`}>
-                                    <div className="flex items-center space-x-4 min-w-0 flex-1 text-left">
+                                <div key={p.id} className={`p-4 border transition-all rounded-[24px] flex items-center justify-between group text-white text-left animate-in slide-in-from-bottom-4 ${isLeader ? 'bg-indigo-600/20 border-indigo-500/50 shadow-[0_0_20px_rgba(79,70,229,0.3)]' : 'bg-white/5 border-white/5'}`}>
+                                    <div className="flex items-center space-x-3 min-w-0 flex-1 text-left">
+                                      {/* 排序箭头 */}
+                                      {canEditTeam && (
+                                        <div className="flex flex-col space-y-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                          <button onClick={() => moveMember(idx, -1)} disabled={idx === 0} className="p-0.5 text-slate-600 hover:text-white disabled:opacity-20 transition-colors rounded"><ArrowUp size={12} /></button>
+                                          <button onClick={() => moveMember(idx, 1)} disabled={idx === selectedPersonnel.length - 1} className="p-0.5 text-slate-600 hover:text-white disabled:opacity-20 transition-colors rounded"><ArrowDown size={12} /></button>
+                                        </div>
+                                      )}
                                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0 shadow-lg transition-colors ${isLeader ? 'bg-indigo-600 text-white ring-4 ring-indigo-600/20' : 'bg-slate-800 text-slate-400'}`}>
                                         {isLeader ? <Medal size={18} /> : idx + 1}
                                       </div>
-                                      <div className="text-left min-w-0">
+                                      <div className="text-left min-w-0 flex-1">
                                           <div className="flex items-center space-x-2">
                                             <p className="text-sm font-black italic truncate">{p.name}</p>
                                             {isLeader && <span className="px-1.5 py-0.5 bg-indigo-600 text-[8px] font-black uppercase rounded italic tracking-widest">负责人</span>}
                                           </div>
                                           <p className="text-[10px] text-slate-500 font-bold uppercase mt-1 italic truncate tracking-tight">{p.proposedPosition}</p>
+                                          {/* 本项目任职选择 */}
+                                          {canEditTeam && (
+                                            <div className="mt-2">
+                                              {addingRoleForId === p.id ? (
+                                                <div className="flex items-center space-x-1" onClick={e => e.stopPropagation()}>
+                                                  <input
+                                                    autoFocus
+                                                    value={newRoleTypeInput}
+                                                    onChange={e => setNewRoleTypeInput(e.target.value)}
+                                                    onKeyDown={e => {
+                                                      if (e.key === 'Enter' && newRoleTypeInput.trim()) {
+                                                        const t = newRoleTypeInput.trim();
+                                                        if (!projectRoleTypes.includes(t)) setProjectRoleTypes(prev => [...prev, t]);
+                                                        setMemberProjectRoles(prev => ({ ...prev, [p.id]: t }));
+                                                        setNewRoleTypeInput('');
+                                                        setAddingRoleForId(null);
+                                                      } else if (e.key === 'Escape') {
+                                                        setNewRoleTypeInput('');
+                                                        setAddingRoleForId(null);
+                                                      }
+                                                    }}
+                                                    placeholder="输入新类型后回车"
+                                                    className="flex-1 px-2 py-1 bg-white/10 border border-white/20 rounded-lg text-[9px] text-white font-bold outline-none focus:border-indigo-400 min-w-0"
+                                                  />
+                                                  <button onClick={() => { setNewRoleTypeInput(''); setAddingRoleForId(null); }} className="text-slate-500 hover:text-white"><X size={10}/></button>
+                                                </div>
+                                              ) : (
+                                                <div className="flex items-center space-x-1 flex-wrap gap-y-1">
+                                                  <select
+                                                    value={memberProjectRoles[p.id] || ''}
+                                                    onChange={e => {
+                                                      if (e.target.value === '__add__') {
+                                                        setAddingRoleForId(p.id);
+                                                      } else {
+                                                        setMemberProjectRoles(prev => ({ ...prev, [p.id]: e.target.value }));
+                                                      }
+                                                    }}
+                                                    className="flex-1 min-w-0 px-2 py-1 bg-white/10 border border-white/10 rounded-lg text-[9px] text-white font-bold outline-none focus:border-indigo-400 cursor-pointer appearance-none"
+                                                    style={{ maxWidth: '100%' }}
+                                                  >
+                                                    <option value="" disabled className="bg-slate-900 text-slate-400">本项目任职…</option>
+                                                    {projectRoleTypes.map(rt => (
+                                                      <option key={rt} value={rt} className="bg-slate-900 text-white">{rt}</option>
+                                                    ))}
+                                                    <option value="__add__" className="bg-slate-900 text-indigo-400">＋ 添加新类型</option>
+                                                  </select>
+                                                  {memberProjectRoles[p.id] && (
+                                                    <button onClick={() => setMemberProjectRoles(prev => { const n = {...prev}; delete n[p.id]; return n; })} className="text-slate-600 hover:text-red-400 transition-colors"><X size={9}/></button>
+                                                  )}
+                                                </div>
+                                              )}
+                                            </div>
+                                          )}
+                                          {!canEditTeam && memberProjectRoles[p.id] && (
+                                            <span className="inline-block mt-1.5 px-2 py-0.5 bg-white/10 text-[8px] font-black text-slate-300 rounded uppercase tracking-widest">{memberProjectRoles[p.id]}</span>
+                                          )}
                                       </div>
                                     </div>
                                     <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                       {canEditTeam && (
-                                        <button 
-                                          onClick={() => setProjectLeaderId(isLeader ? null : p.id)} 
+                                        <button
+                                          onClick={() => handleSetLeader(p.id)}
                                           className={`p-2 rounded-lg transition-all ${isLeader ? 'text-blue-400 bg-blue-400/10' : 'text-slate-500 hover:text-blue-400 hover:bg-white/5'}`}
-                                          title={isLeader ? "取消负责人身份" : "设为项目负责人"}
+                                          title={isLeader ? "取消负责人身份" : "设为负责人并置顶"}
                                         >
                                           <Star size={14} fill={isLeader ? "currentColor" : "none"} />
                                         </button>
@@ -915,39 +1216,54 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
              <div className="px-12 py-6 border-b border-slate-100 bg-slate-50 flex items-center justify-between shrink-0 text-left">
                 <div className="flex items-center space-x-6 text-left">
                    <div className="w-12 h-12 text-white rounded-2xl flex items-center justify-center font-black shadow-lg bg-emerald-600 shadow-emerald-100"><Award size={24}/></div>
-                   <div><h3 className="text-xl font-black text-slate-800 tracking-tighter uppercase italic leading-none">支撑项目业绩池遴选</h3><p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic mt-1.5">Registry precision selection factory</p></div>
+                   <div><h3 className="text-xl font-black text-slate-800 tracking-tighter uppercase italic leading-none">支撑项目业绩池遴选</h3></div>
                 </div>
-                <div className="flex space-x-4"><button onClick={() => setPhase('exp_preview')} className="px-8 py-4 bg-slate-100 text-slate-600 rounded-[24px] text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all border border-slate-200 shadow-sm flex items-center"><History size={16} className="mr-2" /> 业绩全案预览 (仿真)</button>{canEditExp && (<button onClick={() => markTaskCompleted('exp')} className="px-10 py-4 bg-emerald-600 text-white rounded-[24px] text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl active:scale-95"><CheckCircle2 size={18} className="mr-3 inline" /> 锁定所选业绩</button>)}</div>
+                <div className="flex space-x-4"><button onClick={() => { if (selectedProjects.length === 0) { alert('请先遴选至少一条业绩后再生成预览。'); return; } setPhase('exp_preview'); }} className="px-8 py-4 bg-slate-100 text-slate-600 rounded-[24px] text-[10px] font-black uppercase tracking-widest hover:bg-white transition-all border border-slate-200 shadow-sm flex items-center"><History size={16} className="mr-2" /> 业绩全案预览 (仿真)</button>{canEditExp && (<button onClick={() => markTaskCompleted('exp')} className="px-10 py-4 bg-emerald-600 text-white rounded-[24px] text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl active:scale-95"><CheckCircle2 size={18} className="mr-3 inline" /> 锁定所选业绩</button>)}</div>
              </div>
               <div className="flex bg-white text-left relative w-full overflow-hidden">
                 <div className="flex-1 flex flex-col border-r border-slate-100 p-8 space-y-10 min-w-0 w-0 overflow-hidden bg-slate-50/20">
                    <section className="text-left">
-                      <div className="flex items-center justify-between mb-6 text-left"><div className="flex items-center italic text-left"><Bot size={24} className="text-emerald-600 mr-3" /><h4 className="text-xs font-black text-slate-900 uppercase">GridGPT 语义契合推荐</h4></div><button disabled={isAiRecommending || !canEditExp} onClick={handleExpAiRecommend} className="flex items-center px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-emerald-700 shadow-xl disabled:opacity-30 transition-all">{isAiRecommending ? <RefreshCw className="mr-2 animate-spin" size={12}/> : <BrainCircuit size={12} className="mr-2" />} 启动智能匹配</button></div>
-                      <div className="w-full overflow-x-auto border border-slate-200 rounded-2xl bg-white shadow-sm overflow-hidden custom-scrollbar-main">
-                        <table className="w-full min-w-[1400px] text-left border-collapse">
+                      <div className="flex items-center justify-between mb-6 text-left"><div className="flex items-center italic text-left"><Bot size={24} className="text-emerald-600 mr-3" /><h4 className="text-xs font-black text-slate-900 uppercase">智能业绩推荐</h4></div><button disabled={isAiRecommending || !canEditExp} onClick={handleExpAiRecommend} className="flex items-center px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-emerald-700 shadow-xl disabled:opacity-30 transition-all">{isAiRecommending ? <RefreshCw className="mr-2 animate-spin" size={12}/> : <BrainCircuit size={12} className="mr-2" />} 启动智能匹配</button></div>
+                      <div className="w-full overflow-x-auto border border-slate-200 rounded-2xl bg-white shadow-sm custom-scrollbar-main">
+                        <table className="w-full min-w-[1400px] text-left border-separate border-spacing-0">
                           <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-[10px] font-black uppercase tracking-widest">
                             <tr>
-                              <th className="px-6 py-6 border-r border-slate-200/60">匹配度</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">年份</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">类型</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">业绩名称</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">建设单位</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">地点</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60 text-center">金额(W)</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">项目负责人</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">签订日期</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">合同状态</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">AI 判定理由</th>
-                              <th className="px-6 py-6 text-center">操作</th>
+                              <th className="sticky left-0 z-20 bg-slate-50 w-20 px-6 py-6 border-r border-b border-slate-200/60">匹配度</th>
+                              <th className="sticky left-20 z-20 bg-slate-50 w-36 px-6 py-6 border-r border-b border-slate-200/60 text-center">操作</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">年份</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">类型</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">业绩名称</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">建设单位</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">地点</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60 text-center">金额(W)</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">项目负责人</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">签订日期</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">合同状态</th>
+                              <th className="px-6 py-6 border-b border-slate-200/60">AI 判定理由</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
                             {expAiRecommendations.map((rec, idx) => (
                               <tr key={idx} className="hover:bg-slate-50 transition-colors group">
-                                <td className="px-4 py-4 border-r border-slate-100/60">
+                                <td className="sticky left-0 z-10 bg-white px-4 py-4 border-r border-slate-100/60">
                                   <span className="px-2 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-black rounded italic">
                                     {rec.matchScore}%
                                   </span>
+                                </td>
+                                <td className="sticky left-20 z-10 bg-white px-4 py-4 border-r border-slate-100/60">
+                                  <div className="flex items-center justify-center space-x-2">
+                                    <button onClick={() => setDetailProject(rec.project)} className="p-2 text-slate-400 hover:text-blue-600 transition-all bg-white rounded-lg border border-slate-200 shadow-sm">
+                                      <Eye size={14} />
+                                    </button>
+                                    {canEditExp && (
+                                      <button
+                                        onClick={() => setSelectedProjects(prev => prev.find(p => p.id === rec.project.id) ? prev : [...prev, rec.project])}
+                                        className="px-4 py-2 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-sm active:scale-95"
+                                      >
+                                        引用
+                                      </button>
+                                    )}
+                                  </div>
                                 </td>
                                 <td className="px-6 py-6 text-xs font-bold text-slate-500 border-r border-slate-100/60">
                                   {rec.project.contractYear}
@@ -978,23 +1294,8 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
                                     {rec.project.contractStatus}
                                   </span>
                                 </td>
-                                <td className="px-6 py-6 text-[10px] text-slate-500 font-medium border-r border-slate-100/60 max-w-[200px]">
+                                <td className="px-6 py-6 text-[10px] text-slate-500 font-medium max-w-[200px]">
                                   <div className="line-clamp-2 leading-relaxed italic">{rec.reason}</div>
-                                </td>
-                                <td className="px-4 py-4">
-                                  <div className="flex items-center justify-center space-x-2">
-                                    <button onClick={() => setDetailProject(rec.project)} className="p-2 text-slate-400 hover:text-blue-600 transition-all bg-white rounded-lg border border-slate-200 shadow-sm">
-                                      <Eye size={14} />
-                                    </button>
-                                    {canEditExp && (
-                                      <button 
-                                        onClick={() => setSelectedProjects(prev => prev.find(p => p.id === rec.project.id) ? prev : [...prev, rec.project])} 
-                                        className="px-4 py-2 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-sm active:scale-95"
-                                      >
-                                        引用
-                                      </button>
-                                    )}
-                                  </div>
                                 </td>
                               </tr>
                             ))}
@@ -1014,55 +1315,98 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
                           <input 
                             disabled={!canEditExp} 
                             value={projectSearch} 
-                            onChange={e => setProjectSearch(e.target.value)} 
+                            onChange={e => { setProjectSearch(e.target.value); setPoolPage(1); }}
                             placeholder="检索名称/年份/建设单位..." 
                             className="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl outline-none text-[11px] font-bold text-slate-700 w-80 focus:border-emerald-500 transition-all shadow-sm" 
                           />
                         </div>
                       </div>
-                      <div className="w-full overflow-x-auto border border-slate-200 rounded-2xl bg-white shadow-sm overflow-hidden custom-scrollbar-main">
-                        <table className="w-full min-w-[1400px] text-left border-collapse">
-                          <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-[10px] font-black uppercase tracking-widest">
+                      <div className="w-full overflow-x-auto border border-slate-200 rounded-2xl bg-white shadow-sm custom-scrollbar-main">
+                        <table className="w-full min-w-[1400px] text-left border-separate border-spacing-0">
+                          <thead className="bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-widest">
                             <tr>
-                              <th className="px-6 py-6 border-r border-slate-200/60">年份</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">类型</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">业绩名称</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">建设单位</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">地点</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60 text-center">金额(W)</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">项目负责人</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">签订日期</th>
-                              <th className="px-6 py-6 border-r border-slate-200/60">合同状态</th>
-                              <th className="px-6 py-6 text-center">操作</th>
+                              <th className="sticky left-0 z-20 bg-slate-50 w-36 px-6 py-6 border-r border-b border-slate-200/60 text-center">操作</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">年份</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">类型</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">业绩名称</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">建设单位</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">地点</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60 text-center">金额(W)</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">项目负责人</th>
+                              <th className="px-6 py-6 border-r border-b border-slate-200/60">签订日期</th>
+                              <th className="px-6 py-6 border-b border-slate-200/60">合同状态</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
-                            {fullProjectPool.filter(p => p.projectName.includes(projectSearch)).map(p => (
-                              <tr key={p.id} className="hover:bg-slate-50 transition-colors group">
-                                <td className="px-4 py-4 text-xs font-bold text-slate-500 border-r border-slate-100/60">{p.contractYear}</td>
-                                <td className="px-4 py-4 text-[10px] font-medium text-slate-400 uppercase border-r border-slate-100/60">{p.projectType}</td>
-                                <td className="px-4 py-4 text-xs font-bold text-slate-900 border-r border-slate-100/60">{p.projectName}</td>
-                                <td className="px-4 py-4 text-[10px] font-medium text-slate-400 uppercase border-r border-slate-100/60">{p.clientName}</td>
-                                <td className="px-4 py-4 text-[10px] font-medium text-slate-400 uppercase border-r border-slate-100/60">{p.location}</td>
-                                <td className="px-4 py-4 text-xs font-bold text-blue-600 border-r border-slate-100/60 text-center">{p.amount}W</td>
-                                <td className="px-4 py-4 text-[10px] font-bold text-slate-600 uppercase border-r border-slate-100/60">{p.leader}</td>
-                                <td className="px-4 py-4 text-[10px] font-medium text-slate-400 uppercase border-r border-slate-100/60">{p.signingDate}</td>
-                                <td className="px-4 py-4 border-r border-slate-100/60">
-                                  <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase italic ${p.contractStatus === '已完成' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
-                                    {p.contractStatus}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-4">
-                                  <div className="flex items-center justify-center space-x-2">
-                                    <button onClick={() => setDetailProject(p)} className="p-2 text-slate-400 hover:text-blue-600 transition-all bg-white rounded-lg border border-slate-200 shadow-sm"><Eye size={14} /></button>
-                                    {canEditExp && (<button onClick={() => setSelectedProjects(prev => prev.find(i => i.id === p.id) ? prev : [...prev, p])} className="px-4 py-2 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-sm active:scale-95">选用</button>)}
-                                  </div>
-                                </td>
-                              </tr>
-                            ))}
+                            {(() => {
+                              const filtered = fullProjectPool.filter(p => p.projectName.includes(projectSearch));
+                              const totalPoolPages = Math.ceil(filtered.length / POOL_PAGE_SIZE);
+                              const paged = filtered.slice((poolPage - 1) * POOL_PAGE_SIZE, poolPage * POOL_PAGE_SIZE);
+                              return paged.map(p => (
+                                <tr key={p.id} className="hover:bg-slate-50 transition-colors group">
+                                  <td className="sticky left-0 z-10 bg-white px-4 py-4 border-r border-slate-100/60">
+                                    <div className="flex items-center justify-center space-x-2">
+                                      <button onClick={() => setDetailProject(p)} className="p-2 text-slate-400 hover:text-blue-600 transition-all bg-white rounded-lg border border-slate-200 shadow-sm"><Eye size={14} /></button>
+                                      {canEditExp && (<button onClick={() => setSelectedProjects(prev => prev.find(i => i.id === p.id) ? prev : [...prev, p])} className="px-4 py-2 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-sm active:scale-95">选用</button>)}
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-4 text-xs font-bold text-slate-500 border-r border-slate-100/60">{p.contractYear}</td>
+                                  <td className="px-4 py-4 text-[10px] font-medium text-slate-400 uppercase border-r border-slate-100/60">{p.projectType}</td>
+                                  <td className="px-4 py-4 text-xs font-bold text-slate-900 border-r border-slate-100/60">{p.projectName}</td>
+                                  <td className="px-4 py-4 text-[10px] font-medium text-slate-400 uppercase border-r border-slate-100/60">{p.clientName}</td>
+                                  <td className="px-4 py-4 text-[10px] font-medium text-slate-400 uppercase border-r border-slate-100/60">{p.location}</td>
+                                  <td className="px-4 py-4 text-xs font-bold text-blue-600 border-r border-slate-100/60 text-center">{p.amount}W</td>
+                                  <td className="px-4 py-4 text-[10px] font-bold text-slate-600 uppercase border-r border-slate-100/60">{p.leader}</td>
+                                  <td className="px-4 py-4 text-[10px] font-medium text-slate-400 uppercase border-r border-slate-100/60">{p.signingDate}</td>
+                                  <td className="px-4 py-4">
+                                    <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase italic ${p.contractStatus === '已完成' ? 'bg-emerald-100 text-emerald-600' : 'bg-blue-100 text-blue-600'}`}>
+                                      {p.contractStatus}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ));
+                            })()}
                           </tbody>
                         </table>
                       </div>
+                      {/* 分页 */}
+                      {(() => {
+                        const filtered = fullProjectPool.filter(p => p.projectName.includes(projectSearch));
+                        const totalPoolPages = Math.ceil(filtered.length / POOL_PAGE_SIZE);
+                        if (totalPoolPages <= 1) return null;
+                        return (
+                          <div className="flex items-center justify-between mt-4 px-1">
+                            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                              共 {filtered.length} 条 · 第 {poolPage} / {totalPoolPages} 页
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => setPoolPage(p => Math.max(1, p - 1))}
+                                disabled={poolPage === 1}
+                                className="w-8 h-8 rounded-xl flex items-center justify-center border border-slate-200 text-slate-500 hover:border-blue-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                              >
+                                <ChevronLeft size={16} />
+                              </button>
+                              {Array.from({ length: totalPoolPages }, (_, i) => i + 1).map(p => (
+                                <button
+                                  key={p}
+                                  onClick={() => setPoolPage(p)}
+                                  className={`w-8 h-8 rounded-xl text-xs font-black transition-all ${poolPage === p ? 'bg-blue-600 text-white shadow-md' : 'border border-slate-200 text-slate-500 hover:border-blue-500 hover:text-blue-600'}`}
+                                >
+                                  {p}
+                                </button>
+                              ))}
+                              <button
+                                onClick={() => setPoolPage(p => Math.min(totalPoolPages, p + 1))}
+                                disabled={poolPage === totalPoolPages}
+                                className="w-8 h-8 rounded-xl flex items-center justify-center border border-slate-200 text-slate-500 hover:border-blue-500 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                              >
+                                <ChevronRight size={16} />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })()}
                    </section>                </div>
                 <div className={`${isSidebarCollapsed ? 'w-0' : 'w-[400px]'} transition-all duration-300 flex flex-col shrink-0 bg-slate-50 border-l border-slate-200 relative`}>
                   <button 
@@ -1080,7 +1424,7 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
                       <div className="flex items-center justify-between mb-6 text-white italic relative z-10 text-left">
                         <div className="flex items-center italic">
                           <DatabaseZap size={20} className="text-emerald-400 mr-3" />
-                          <div><h4 className="text-sm font-black uppercase tracking-tighter">本工程支撑业绩池</h4></div>
+                          <div><h4 className="text-sm font-black uppercase tracking-tighter">支撑业绩池</h4></div>
                         </div>
                         <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-slate-400 text-[10px] font-black italic tracking-widest">{selectedProjects.length} 项已入选</span>
                       </div>
@@ -1093,14 +1437,18 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
                           ) : (
                             selectedProjects.map((p, idx) => (
                               <div key={idx} className="p-4 bg-white/5 border border-white/10 rounded-[24px] flex items-center justify-between group text-white text-left animate-in slide-in-from-right-4 transition-all">
-                                 <div className="flex items-center space-x-4 min-w-0 flex-1 text-left">
-                                   <div className="w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center font-black text-sm shrink-0 shadow-lg">{idx + 1}</div>
+                                 <div className="flex items-center space-x-3 min-w-0 flex-1 text-left">
+                                   <div className="flex flex-col gap-0.5 shrink-0">
+                                     <button onClick={() => moveProject(idx, -1)} disabled={idx === 0} className="p-0.5 text-slate-600 hover:text-white disabled:opacity-20 transition-colors rounded"><ArrowUp size={12} /></button>
+                                     <button onClick={() => moveProject(idx, 1)} disabled={idx === selectedProjects.length - 1} className="p-0.5 text-slate-600 hover:text-white disabled:opacity-20 transition-colors rounded"><ArrowDown size={12} /></button>
+                                   </div>
+                                   <div className="w-8 h-8 bg-emerald-600 text-white rounded-lg flex items-center justify-center font-black text-xs shrink-0 shadow-lg">{idx + 1}</div>
                                    <div className="text-left min-w-0">
-                                     <p className="text-sm font-black italic truncate leading-none mb-1.5">{p.projectName}</p>
+                                     <p className="text-xs font-black italic truncate leading-none mb-1">{p.projectName}</p>
                                      <p className="text-[9px] text-slate-500 font-black uppercase italic tracking-tighter">{p.amount}W · {p.contractYear}年</p>
                                    </div>
                                  </div>
-                                 <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-all">
+                                 <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-all shrink-0">
                                    <button onClick={() => setDetailProject(p)} className="p-2 text-slate-500 hover:text-white"><Maximize2 size={14}/></button>
                                    {canEditExp && (<button onClick={() => setSelectedProjects(selectedProjects.filter((_, i) => i !== idx))} className="p-2 text-slate-500 hover:text-red-400 transition-all"><Trash2 size={14} /></button>)}
                                  </div>
@@ -1184,7 +1532,7 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
              <div className="px-12 py-6 border-b border-slate-100 bg-slate-50 flex items-center justify-between shrink-0 text-left">
                 <div className="flex items-center space-x-6 text-left">
                    <div className="w-12 h-12 text-white rounded-2xl flex items-center justify-center font-black shadow-lg bg-purple-600 shadow-purple-100"><FileText size={24}/></div>
-                   <div><h3 className="text-xl font-black text-slate-800 tracking-tighter uppercase italic leading-none">技术方案智能深度编撰</h3><p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic mt-1.5">Agent-assisted technical drafting workflow</p></div>
+                   <div><h3 className="text-xl font-black text-slate-800 tracking-tighter uppercase italic leading-none">技术方案智能深度编撰</h3></div>
                 </div>
                 <div className="flex space-x-4">{canEditContent && (<button onClick={() => markTaskCompleted('content')} className="px-10 py-4 bg-emerald-600 text-white rounded-[24px] text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-xl active:scale-95"><CheckCircle2 size={18} className="mr-3 inline" /> 完成并锁定环节</button>)}</div>
              </div>
@@ -1238,7 +1586,7 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
                    </div>
                    <div className="flex flex-col text-left">
                       <span className="text-xs font-bold text-emerald-400 flex items-center uppercase tracking-widest">
-                        <BadgeCheck size={18} className="mr-3" /> {phase === 'exp_preview' ? '标书项目业绩全案 1:1 仿真预览 (对齐 Word 标准)' : '拟任人员资历全案 1:1 仿真预览'}
+                        <BadgeCheck size={18} className="mr-3" /> {phase === 'exp_preview' ? '标书项目业绩全案 1:1 仿真预览 (对齐 Word 标准)' : '项目团队预览'}
                       </span>
                       {phase === 'team_preview' && projectLeaderId && (
                         <span className="text-[10px] text-blue-400 font-black mt-1 uppercase tracking-widest italic animate-pulse">
@@ -1256,9 +1604,12 @@ const BidWorkspaceView: React.FC<BidWorkspaceViewProps> = ({ currentTask, curren
               </div>
               <div className="flex-1 overflow-y-auto p-24 flex flex-col items-center bg-black relative custom-scrollbar-dark scroll-smooth text-left">
                   <div className="origin-top transition-all space-y-24 text-left" style={{ transform: `scale(${zoomLevel / 100})` }}>
-                    {phase === 'exp_preview' 
-                      ? selectedProjects.map((p) => <ProjectFullDocumentMerged key={p.id} project={p} />) 
-                      : previewPersonnelList.map((p) => <PersonnelFullDocumentMerged key={p.id} person={p} isLeader={p.id === projectLeaderId} />)}
+                    {phase === 'exp_preview'
+                      ? (<><ProjectSummaryTable />{selectedProjects.map((p) => <ProjectFullDocumentMerged key={p.id} project={p} />)}</>)
+                      : (<>
+                          <TeamSummaryTable />
+                          {previewPersonnelList.map((p) => <PersonnelFullDocumentMerged key={p.id} person={p} isLeader={p.id === projectLeaderId} />)}
+                        </>)}
                     {(phase === 'exp_preview' ? selectedProjects : selectedPersonnel).length === 0 && (
                       <div className="text-slate-600 italic uppercase tracking-[0.4em] mt-40 flex flex-col items-center">
                         <Layout size={64} strokeWidth={1} className="mb-6 opacity-30" />
